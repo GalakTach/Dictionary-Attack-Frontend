@@ -1,6 +1,6 @@
 import logo from "./logo.svg";
 import "./App.css";
-import Letter from "./components";
+import Game from "./components";
 import "./components.css";
 
 function App() {
@@ -11,18 +11,7 @@ function App() {
         <p>
           Edit <code>src/App.js</code> and save to reload.
         </p>
-        <div className="LetterBox">
-          <Letter letter="L" />
-          <Letter letter="O" />
-          <Letter letter="R" />
-          <Letter letter="E" />
-          <Letter letter="M" />
-          <Letter letter="I" />
-          <Letter letter="P" />
-          <Letter letter="S" />
-          <Letter letter="U" />
-          <Letter letter="M" />
-        </div>
+        <Game />
       </header>
     </div>
   );

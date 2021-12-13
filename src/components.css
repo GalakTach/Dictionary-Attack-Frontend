@@ -4,7 +4,7 @@
   max-width: 64px;
   min-height: 64px;
   max-height: 64px;
-  background-color: deepskyblue;
+  background-color: #10bfef; /* i'll change the colors later */
   border-radius: 10%;
 
   /* letter display properties */
@@ -15,8 +15,18 @@
   justify-content: center;
 }
 
+.LetterBox :hover {
+  /* for some reason this has to be on the container to make the letters change color properly */
+  background-color: #20cfff; /* i'll change the colors later */
+}
+
+.LetterBox :active {
+  /* for some reason this has to be on the container to make the letters change color properly */
+  background-color: #009fdf;
+}
+
 .LetterBox {
-  max-width: 400px;
+  width: 400px;
   height: 200px;
 
   /* border properties */
@@ -31,4 +41,11 @@
   flex-wrap: wrap;
   align-content: center;
   gap: 6px;
+
+  user-select: none;
+}
+
+.WordBox {
+  max-width: 400px;
+  overflow-wrap: break-word;
 }
