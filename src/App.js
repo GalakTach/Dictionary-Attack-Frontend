@@ -6,13 +6,8 @@ import "./components.css";
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <Game />
-      </header>
+      <h1>Dictionary Attack!</h1>
+      <Game />
     </div>
   );
 }

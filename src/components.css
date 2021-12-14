@@ -49,3 +49,45 @@
   max-width: 400px;
   overflow-wrap: break-word;
 }
+
+.BigButton {
+  background-color: #10bfef; /* i'll change the colors later */
+  border-radius: 10px;
+  height: 64px;
+  width: 160px;
+  margin: 16px;
+  user-select: none;
+
+  /* letter display properties */
+  font-size: 40px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.BigButtonContainer :hover {
+  /* for some reason this has to be on the container to make the letters change color properly */
+  background-color: #20cfff; /* i'll change the colors later */
+}
+
+.BigButtonContainer :active {
+  /* for some reason this has to be on the container to make the letters change color properly */
+  background-color: #009fdf;
+}
+
+.ColumnTray {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.RowTray {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.SideColumn {
+  width: 400px;
+}
