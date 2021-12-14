@@ -28,11 +28,13 @@ class Game extends React.Component {
 
   render() {
     return (
-      <div className="ColumnTray">
+      <div className="RowTray" id="GameContainer">
         <div className="SideColumn">
-          <h2>Character goes here</h2>
+          <Mascot dialogue="Welcome to Dictionary Attack!" />
+          <Options />
         </div>
-        <div>
+        <div className="CenterColumn">
+          <h1>Dictionary Attack!</h1>
           <WordBox currentWord={this.state.word} />
           <div className="LetterBox">
             <Letter
@@ -81,7 +83,10 @@ class Game extends React.Component {
             <BigButton content="Clear" handleClick={this.clearWord} />
           </div>
         </div>
-        <WordList wordlist={this.state.wordList} />
+        <div className="SideColumn">
+          <WordList wordlist={this.state.wordList} />
+          <HighScores />
+        </div>
       </div>
     );
   }
@@ -116,7 +121,7 @@ const BigButton = (props) => {
 const WordList = (props) => {
   if (props.wordlist === "") {
     return (
-      <div class="SideColumn">
+      <div id="WordList" className="SidebarBox">
         <h2>Recent Words</h2>
         <p>No words yet!</p>
       </div>
@@ -124,11 +129,47 @@ const WordList = (props) => {
   } else {
     let list = props.wordlist.replaceAll(" ", "\n");
     return (
-      <div class="SideColumn">
+      <div id="WordList" className="SidebarBox">
         <h2>Recent Words</h2>
         <p>{list}</p>
       </div>
     );
   }
+};
+
+const Mascot = (props) => {
+  return (
+    <div id="MascotBox" className="SidebarBox">
+      <img
+        src="../mascot.png"
+        id="Mascot"
+        alt="Thesaurus Rex"
+        title="Thesaurus Rex"
+      />
+      <p>
+        <b>Thesaurus Rex says:</b>
+        <br />
+        {props.dialogue}
+      </p>
+    </div>
+  );
+};
+
+const HighScores = (props) => {
+  return (
+    <div id="HighScores" className="SidebarBox">
+      <h2>High Scores</h2>
+      <p>No high scores yet!</p>
+    </div>
+  );
+};
+
+const Options = (props) => {
+  return (
+    <div id="Options" className="SidebarBox">
+      <h2>Options</h2>
+      <p>No options yet!</p>
+    </div>
+  );
 };
 export default Game;

@@ -6,7 +6,6 @@ import "./components.css";
 function App() {
   return (
     <div className="App">
-      <h1>Dictionary Attack!</h1>
       <Game />
     </div>
   );
