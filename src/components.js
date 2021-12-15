@@ -4,38 +4,71 @@ import "./components.css";
 class Game extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { word: "", wordList: "", wordsPlayed: 0 };
+    this.state = {
+      word: "",
+      wordList: "",
+      wordsPlayed: 0,
+      score: 0,
+      wordSet: new Set(),
+      errorMessage: "",
+      mascotDialogue: "Welcome to Dictionary Attack!",
+    };
     this.addLetter = this.addLetter.bind(this);
     this.clearWord = this.clearWord.bind(this);
     this.submitWord = this.submitWord.bind(this);
   }
 
   addLetter(letter) {
-    this.setState({ word: this.state.word + letter });
+    this.setState({ word: this.state.word + letter, errorMessage: "" });
   }
 
   clearWord() {
-    this.setState({ word: "" });
+    this.setState({ word: "", errorMessage: "" });
+  }
+
+  goodEnding() {
+    this.setState({ mascotDialogue: "Nice job!" });
   }
 
   submitWord() {
     /* link to word validation backend here */
-    this.setState({
-      wordList: this.state.wordList + this.state.word + " ",
-      wordsPlayed: this.state.wordsPlayed + 1,
-    });
+    if (true) {
+      // The word is valid, check if it has already been played
+      if (!this.state.wordSet.has(this.state.word)) {
+        // The word is not in the played words, add to word list and increment words played
+        this.setState({
+          wordList: this.state.wordList + this.state.word + " ",
+          wordsPlayed: this.state.wordsPlayed + 1,
+          wordSet: this.state.wordSet.add(this.state.word),
+        });
+        // Run validation for if the played word is the longest possible word, if it is the game ends and next round starts
+        if (true) {
+          this.goodEnding();
+        }
+      } else {
+        this.setState({
+          errorMessage: "Uh oh! That word has already been played.",
+        });
+      }
+    } else {
+      // Word is not valid
+      this.setState({
+        errorMessage: "Whoops! " + this.state.word + " is not a word!",
+      });
+    }
   }
 
   render() {
     return (
       <div className="RowTray" id="GameContainer">
         <div className="SideColumn">
-          <Mascot dialogue="Welcome to Dictionary Attack!" />
+          <Mascot dialogue={this.state.mascotDialogue} />
           <Options />
         </div>
         <div className="CenterColumn">
           <h1>Dictionary Attack!</h1>
           <WordBox currentWord={this.state.word} />
+          <p> {this.state.errorMessage}</p>
           <div className="LetterBox">
             <Letter
               letter="L"
