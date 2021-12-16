@@ -1,5 +1,6 @@
 import React from "react";
 import "./components.css";
+import axios from "axios";
 
 class Game extends React.Component {
   constructor(props) {
@@ -12,10 +13,12 @@ class Game extends React.Component {
       wordSet: new Set(),
       errorMessage: "",
       mascotDialogue: "Welcome to Dictionary Attack!",
+      wordDefinition: ""
     };
     this.addLetter = this.addLetter.bind(this);
     this.clearWord = this.clearWord.bind(this);
     this.submitWord = this.submitWord.bind(this);
+    this.validateWord = this.validateWord.bind(this);
   }
 
   addLetter(letter) {
@@ -50,13 +53,31 @@ class Game extends React.Component {
           errorMessage: "Uh oh! That word has already been played.",
         });
       }
-    } else {
-      // Word is not valid
-      this.setState({
-        errorMessage: "Whoops! " + this.state.word + " is not a word!",
-      });
-    }
+    } 
   }
+
+  async validateWord(){
+    const inputedWord = this.state.word;
+    const call = await axios.get("http://localhost:5000/api/validateWord/" + inputedWord);
+    if(!call['data']['error']){
+      if(call['data']['definitions']){
+        this.setState({wordDefinition: call['data']['definitions'].definition});
+        this.submitWord();
+      }else{
+        this.setState({errorMessage: "Word exists but there is no definition. No points. Try Again Dumbass"})
+      }
+     
+    }
+    else{
+      this.setState({errorMessage: "Word does not exist"})
+    }
+    
+    console.log(call);
+  }
+
+
+
+
 
   render() {
     return (
@@ -112,7 +133,7 @@ class Game extends React.Component {
             />
           </div>
           <div className="RowTray">
-            <BigButton content="Submit" handleClick={this.submitWord} />
+            <BigButton content="Submit" handleClick={this.validateWord} />
             <BigButton content="Clear" handleClick={this.clearWord} />
           </div>
         </div>
