@@ -8,14 +8,16 @@ class Game extends React.Component {
       word: "",
       wordList: "",
       wordsPlayed: 0,
-      time: {},
-      seconds: 5,
+      time: {}, //the timer
+      seconds: 240, //number of seconds to be turned into minutes / seconds
     };
     this.addLetter = this.addLetter.bind(this);
     this.clearWord = this.clearWord.bind(this);
     this.submitWord = this.submitWord.bind(this);
     this.timer = 0;
     this.startTimer = this.startTimer.bind(this);
+    this.stopTimer = this.stopTimer.bind(this);
+    this.resetTimer = this.resetTimer.bind(this);
     this.countDown = this.countDown.bind(this);
   }
 
@@ -62,13 +64,21 @@ class Game extends React.Component {
   countDown() {
     let seconds = this.state.seconds - 1;
     this.setState({
-      time: this.calcTime(seconds),
+      time: this.calcTime(seconds), //updates time display
       seconds: seconds,
     });
 
     if (seconds === 0) {
-      clearInterval(this.timer);
+      clearInterval(this.timer); // stops timer
     }
+  }
+
+  stopTimer() {
+    clearInterval(this.timer);
+  }
+
+  resetTimer() {
+    this.setState({ seconds: 30 });
   }
 
   render() {
@@ -130,7 +140,13 @@ class Game extends React.Component {
         </div>
         <div className="SideColumn">
           <WordList wordlist={this.state.wordList} />
+          {/* button to start timer */}
           <button onClick={this.startTimer}>Start</button>
+          {/* button to stop timer */}
+          <button onClick={this.stopTimer}>Stop</button>
+          {/* button to reset timer */}
+          <button onClick={this.resetTimer}>Reset</button>
+          {/* displays minutes and seconds */}
           {this.state.time.M} M {this.state.time.S} S
           <HighScores />
         </div>
