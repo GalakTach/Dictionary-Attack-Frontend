@@ -7,7 +7,7 @@ const baseWordScore = 200;
 const bonusLetterMultiplier = 1.5;
 const minimumWordLength = 3;
 const startingTileCount = 10;
-const startingRoundLength = 120;
+const startingRoundLength = 60;
 
 const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
@@ -29,7 +29,6 @@ class Game extends React.Component {
       mascotDialogue: "Welcome to Dictionary Attack!",
       wordDefinition: "",
       startingWord: "LOREMIPSUM",
-      dupStartingWord: "LOREMIPSUM",
       availableLetters: ["L", "O", "R", "E", "M", "I", "P", "S", "U", "M"],
     };
     this.addLetter = this.addLetter.bind(this);
@@ -56,11 +55,31 @@ class Game extends React.Component {
 
   generateLetterTray() {
     let tray = [];
-    for (let i = 0; i < startingTileCount; i++) {
+
+    const array = this.state.startingWord.split("");
+
+    let currentIndex = array.length,
+      randomIndex;
+
+    // While there remain elements to shuffle...
+    while (currentIndex !== 0) {
+      // Pick a remaining element...
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+
+      // And swap it with the current element.
+      [array[currentIndex], array[randomIndex]] = [
+        array[randomIndex],
+        array[currentIndex],
+      ];
+    }
+
+    for (let i = 0; i < array.length; i++) {
+      console.log(array[i]);
       tray[i] = (
         <Letter
           key={i}
-          letter={alphabet.charAt(Math.floor(Math.random() * 26))}
+          letter={array[i]}
           trayPosition={i}
           wordPosition={-1}
           handleClick={(letter, trayPosition, wordPosition) =>
@@ -86,6 +105,7 @@ class Game extends React.Component {
 
     //reset the timer
     this.resetTimer();
+    this.shuffleWord();
   }
 
   addLetter(letter, trayPosition, wordPosition) {
@@ -149,25 +169,7 @@ class Game extends React.Component {
   }
 
   shuffleWord() {
-    this.clearWord();
-    const array = this.state.dupStartingWord.split("");
-
-    let currentIndex = array.length,
-      randomIndex;
-
-    // While there remain elements to shuffle...
-    while (currentIndex !== 0) {
-      // Pick a remaining element...
-      randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex--;
-
-      // And swap it with the current element.
-      [array[currentIndex], array[randomIndex]] = [
-        array[randomIndex],
-        array[currentIndex],
-      ];
-    }
-    this.setState({ availableLetters: array });
+    this.setState({ letterTray: this.generateLetterTray() });
   }
 
   goodEnding() {
@@ -205,6 +207,7 @@ class Game extends React.Component {
   }
 
   async validateWord() {
+    /*
     const inputedWord = this.state.word;
     const call = await axios.get(
       "http://localhost:5000/api/validateWord/" + inputedWord
@@ -226,6 +229,8 @@ class Game extends React.Component {
     }
 
     console.log(call);
+    */
+    this.submitWord();
   }
 
   calcTime(sec) {
@@ -316,14 +321,6 @@ class Game extends React.Component {
     );
   }
 }
-
-// const WordBox = (props) => {
-//   if (props.currentWord === "") {
-//     return <h2 className="WordBox">Current word: None!</h2>;
-//   } else {
-//     return <h2 className="WordBox">Current word: {props.currentWord}</h2>;
-//   }
-// };
 
 const WordLine = (props) => {
   return (
