@@ -4,7 +4,7 @@ import "./components.css";
 class Game extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { word: "", wordList: "", wordsPlayed: 0 };
+    this.state = { word: "", wordList: "", wordsPlayed: 0, time: 0, score: 0 };
     this.addLetter = this.addLetter.bind(this);
     this.clearWord = this.clearWord.bind(this);
     this.submitWord = this.submitWord.bind(this);
@@ -34,7 +34,13 @@ class Game extends React.Component {
           <Options />
         </div>
         <div className="CenterColumn">
-          <h1>Dictionary Attack!</h1>
+          <div>
+            <h1>Dictionary Attack!</h1>
+            <div className="RowTray">
+              <h3>Time: {this.state.time}</h3>
+              <h3>Score: {this.state.score}</h3>
+            </div>
+          </div>
           <WordBox currentWord={this.state.word} />
           <div className="LetterBox">
             <Letter
