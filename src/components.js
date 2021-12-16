@@ -5,19 +5,114 @@ import "./components.css";
 const baseWordScore = 200;
 const bonusLetterMultiplier = 1.5;
 const minimumWordLength = 3;
+const startingTileCount = 10;
+const startingRoundLength = 120;
+
+const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 class Game extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { word: "", wordList: "", wordsPlayed: 0, time: 0, score: 0 };
+    this.state = {
+      word: "",
+      wordList: "",
+      wordsPlayed: 0,
+      time: startingRoundLength,
+      score: 0,
+      wordDisplay: [],
+      availableTiles: Array(startingTileCount).fill(1),
+      letterTray: [],
+    };
     this.addLetter = this.addLetter.bind(this);
     // this.calculateWordScore = this.calculateWordScore(this);
     this.clearWord = this.clearWord.bind(this);
     this.submitWord = this.submitWord.bind(this);
+    this.initialize = this.initialize.bind(this);
   }
 
-  addLetter(letter) {
-    this.setState({ word: this.state.word + letter });
+  initialize() {
+    let tray = [];
+    for (let i = 0; i < startingTileCount; i++) {
+      tray[i] = (
+        <Letter
+          letter={alphabet.charAt(Math.floor(Math.random() * 26))}
+          trayPosition={i}
+          wordPosition={-1}
+          handleClick={(letter, trayPosition) =>
+            this.addLetter(letter, trayPosition)
+          }
+        />
+      );
+    }
+
+    this.setState({
+      word: "",
+      wordList: "",
+      wordsPlayed: 0,
+      time: startingRoundLength,
+      score: 0,
+      wordDisplay: [],
+      availableTiles: Array(startingTileCount).fill(1),
+      letterTray: tray,
+    });
+  }
+
+  addLetter(letter, trayPosition) {
+    if (this.state.availableTiles[trayPosition] === 1) {
+      this.setState({
+        word: this.state.word + letter,
+        wordDisplay: this.state.wordDisplay.concat([
+          <Letter
+            letter={letter}
+            trayPosition={trayPosition}
+            wordPosition={this.state.wordDisplay.length}
+            handleClick={(trayPosition, wordPosition) =>
+              this.removeLetter(trayPosition, wordPosition)
+            }
+          />,
+        ]),
+        availableTiles: this.state.availableTiles.fill(
+          0,
+          trayPosition,
+          trayPosition + 1
+        ),
+      });
+      console.log(this.state.availableTiles.toString());
+    } else {
+      console.log("Letter unavailable!");
+    }
+  }
+
+  removeLetter(trayPosition, wordPosition) {
+    // NOTE FOR CHRIS: this is supposed to be recursive, but it only actually executes the last iteration of itself
+    if (wordPosition + 1 < this.state.wordDisplay.length) {
+      // if this letter isn't at the end of the word
+      console.log(
+        "The letter " +
+          this.state.wordDisplay[wordPosition].props.letter +
+          " at position " +
+          this.state.wordDisplay[wordPosition].props.wordPosition +
+          " isn't at the end of the word. Trying to remove the next character..."
+      );
+      this.removeLetter(
+        this.state.wordDisplay[wordPosition + 1].props.trayPosition,
+        this.state.wordDisplay[wordPosition + 1].props.wordPosition
+      );
+    }
+
+    this.setState({
+      wordDisplay: this.state.wordDisplay.slice(
+        0,
+        this.state.wordDisplay.length - 1
+      ),
+      availableTiles: this.state.availableTiles.fill(
+        // NOTE FOR CHRIS: this doesn't work for some reason, even though it's exactly the same as in addLetter????????
+        1,
+        trayPosition,
+        trayPosition + 1
+      ),
+    });
+    console.log(this.state.availableTiles.toString());
   }
 
   calculateWordScore(word) {
@@ -28,7 +123,11 @@ class Game extends React.Component {
   }
 
   clearWord() {
-    this.setState({ word: "" });
+    this.setState({
+      word: "",
+      wordDisplay: [],
+      availableTiles: this.state.availableTiles.fill(1),
+    });
   }
 
   submitWord() {
@@ -52,6 +151,7 @@ class Game extends React.Component {
         <div className="SideColumn">
           <Mascot dialogue="Welcome to Dictionary Attack!" />
           <Options />
+          <button onClick={this.initialize}>Start Game</button>
         </div>
         <div className="CenterColumn">
           <div>
@@ -61,49 +161,9 @@ class Game extends React.Component {
               <h3>Score: {this.state.score}</h3>
             </div>
           </div>
-          <WordBox currentWord={this.state.word} />
-          <div className="LetterBox">
-            <Letter
-              letter="L"
-              handleClick={(letter) => this.addLetter(letter)}
-            />
-            <Letter
-              letter="O"
-              handleClick={(letter) => this.addLetter(letter)}
-            />
-            <Letter
-              letter="R"
-              handleClick={(letter) => this.addLetter(letter)}
-            />
-            <Letter
-              letter="E"
-              handleClick={(letter) => this.addLetter(letter)}
-            />
-            <Letter
-              letter="M"
-              handleClick={(letter) => this.addLetter(letter)}
-            />
-            <Letter
-              letter="I"
-              handleClick={(letter) => this.addLetter(letter)}
-            />
-            <Letter
-              letter="P"
-              handleClick={(letter) => this.addLetter(letter)}
-            />
-            <Letter
-              letter="S"
-              handleClick={(letter) => this.addLetter(letter)}
-            />
-            <Letter
-              letter="U"
-              handleClick={(letter) => this.addLetter(letter)}
-            />
-            <Letter
-              letter="M"
-              handleClick={(letter) => this.addLetter(letter)}
-            />
-          </div>
+          {/* <WordBox currentWord={this.state.word} /> */}
+          <WordLine letters={this.state.wordDisplay} />
+          <div className="LetterBox">{this.state.letterTray}</div>
           <div className="RowTray">
             <BigButton content="Submit" handleClick={this.submitWord} />
             <BigButton content="Clear" handleClick={this.clearWord} />
@@ -126,9 +186,21 @@ const WordBox = (props) => {
   }
 };
 
+const WordLine = (props) => {
+  return (
+    <div>
+      <h2>Current word:</h2>
+      <div class="WordLine">{props.letters}</div>
+    </div>
+  );
+};
+
 const Letter = (props) => {
   return (
-    <div className="Letter" onClick={() => props.handleClick(props.letter)}>
+    <div
+      className="Letter"
+      onClick={() => props.handleClick(props.letter, props.trayPosition)}
+    >
       <p>{props.letter}</p>
     </div>
   );
@@ -198,4 +270,5 @@ const Options = (props) => {
     </div>
   );
 };
+
 export default Game;
