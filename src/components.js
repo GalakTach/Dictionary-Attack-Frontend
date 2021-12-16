@@ -83,6 +83,9 @@ class Game extends React.Component {
       availableTiles: Array(startingTileCount).fill(1),
       letterTray: this.generateLetterTray(),
     });
+
+    //reset the timer
+    this.resetTimer();
   }
 
   addLetter(letter, trayPosition, wordPosition) {
@@ -232,8 +235,8 @@ class Game extends React.Component {
     let seconds = Math.ceil(secDivisor);
 
     let timObj = {
-      M: minutes,
-      S: seconds,
+      M: minutes + "",
+      S: (seconds + "").padStart(2, "0"), //if less than 2 characters adds a 0 to the front
     };
     return timObj;
   }
@@ -263,7 +266,11 @@ class Game extends React.Component {
   }
 
   resetTimer() {
-    this.setState({ seconds: 90, timer: 0, time: this.calcTime(90) });
+    this.setState({
+      seconds: startingRoundLength,
+      timer: 0,
+      time: this.calcTime(startingRoundLength),
+    });
     clearInterval(this.timer);
     this.timer = 0;
   }
@@ -280,7 +287,8 @@ class Game extends React.Component {
           <div>
             <h1>Dictionary Attack!</h1>
             <div className="RowTray">
-              <h3>Time: 0:00</h3>
+              {/* displays minutes and seconds */}
+              <h3>Time: {this.state.time.M + ":" + this.state.time.S}</h3>
               <h3>Score: {this.state.score}</h3>
             </div>
             <p>{this.state.errorMessage}</p>
@@ -301,9 +309,7 @@ class Game extends React.Component {
           {/* button to stop timer */}
           <button onClick={this.stopTimer}>Stop</button>
           {/* button to reset timer */}
-          <button onClick={this.resetTimer}>Reset</button>
-          {/* displays minutes and seconds */}
-          {this.state.time.M} M {this.state.time.S} S
+          {/* <button onClick={this.resetTimer}>Reset</button> */}
           <HighScores />
         </div>
       </div>
