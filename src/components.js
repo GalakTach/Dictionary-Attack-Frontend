@@ -9,7 +9,7 @@ class Game extends React.Component {
       wordList: "",
       wordsPlayed: 0,
       time: {}, //the timer
-      seconds: 240, //number of seconds to be turned into minutes / seconds
+      seconds: 90, //number of seconds to be turned into minutes / seconds
     };
     this.addLetter = this.addLetter.bind(this);
     this.clearWord = this.clearWord.bind(this);
@@ -78,7 +78,7 @@ class Game extends React.Component {
   }
 
   resetTimer() {
-    this.setState({ seconds: 30 });
+    this.setState({ seconds: 90, timer: 0, time: this.calcTime(90) });
   }
 
   render() {
