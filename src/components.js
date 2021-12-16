@@ -14,7 +14,7 @@ class Game extends React.Component {
     this.addLetter = this.addLetter.bind(this);
     this.clearWord = this.clearWord.bind(this);
     this.submitWord = this.submitWord.bind(this);
-    this.timer = 0;
+    this.timer = 0; // used to set interval when timer starts. needs to be set to 0 again whenever interval is cleared
     this.startTimer = this.startTimer.bind(this);
     this.stopTimer = this.stopTimer.bind(this);
     this.resetTimer = this.resetTimer.bind(this);
@@ -239,50 +239,5 @@ const Options = (props) => {
     </div>
   );
 };
-
-// calcTime(sec){
-//   let minDivisor = sec % (60 * 60);
-//   let minutes = Math.floor(minDivisor / 60);
-//   let secDivisor = minDivisor % 60;
-//   let seconds = Math.ceil(secDivisor);
-
-//   let timObj = {
-//     M: minutes,
-//     S: seconds,
-//   };
-//   return timObj;
-// };
-
-// componentDidMount(){
-//   let timeLeftVar = this.calcTime(this.state.seconds);
-//   this.setState({ time: timeLeftVar });
-// };
-
-// startTimer() {
-//   if (this.timer == 0 && this.state.seconds > 0) {
-//     this.timer = setInterval(this.countDown, 1000);
-//   }
-// };
-
-// countDown() {
-//   let seconds = this.state.seconds - 1;
-//   this.setState({
-//     time: this.calcTime(seconds),
-//     seconds: seconds,
-//   });
-
-//   if (seconds == 0) {
-//     clearInterval(this.timer);
-//   }
-// };
-
-// const Time = (props) => {
-//   return (
-//     <div>
-//       <button onClick={this.startTimer}>Start</button>
-//       M: {this.state.time.M} S: {this.state.time.s}
-//     </div>
-//   );
-// };
 
 export default Game;
