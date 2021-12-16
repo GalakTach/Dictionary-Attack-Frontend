@@ -10,6 +10,13 @@ class Game extends React.Component {
       wordsPlayed: 0,
       time: {}, //the timer
       seconds: 90, //number of seconds to be turned into minutes / seconds
+      score: 0,
+      wordSet: new Set(),
+      errorMessage: "",
+      mascotDialogue: "Welcome to Dictionary Attack!",
+      startingWord: "LOREMIPSUM",
+      dupStartingWord: "LOREMIPSUM",
+      availableLetters: ["L", "O", "R", "E", "M", "I", "P", "S", "U", "M"],
     };
     this.addLetter = this.addLetter.bind(this);
     this.clearWord = this.clearWord.bind(this);
@@ -19,22 +26,73 @@ class Game extends React.Component {
     this.stopTimer = this.stopTimer.bind(this);
     this.resetTimer = this.resetTimer.bind(this);
     this.countDown = this.countDown.bind(this);
+    this.shuffleWord = this.shuffleWord.bind(this);
   }
 
   addLetter(letter) {
-    this.setState({ word: this.state.word + letter });
+    this.setState({ word: this.state.word + letter, errorMessage: "" });
   }
 
   clearWord() {
-    this.setState({ word: "" });
+    this.setState({ word: "", errorMessage: "" });
+  }
+
+  shuffleWord() {
+    this.clearWord();
+    const array = this.state.dupStartingWord.split("");
+
+    let currentIndex = array.length,
+      randomIndex;
+
+    // While there remain elements to shuffle...
+    while (currentIndex !== 0) {
+      // Pick a remaining element...
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+
+      // And swap it with the current element.
+      [array[currentIndex], array[randomIndex]] = [
+        array[randomIndex],
+        array[currentIndex],
+      ];
+    }
+    this.setState({ availableLetters: array });
+  }
+
+  goodEnding() {
+    this.setState({ mascotDialogue: "Nice job!" });
+  }
+
+  badEnding() {
+    this.setState({ mascotDialogue: "Nothing personnel kid." });
   }
 
   submitWord() {
     /* link to word validation backend here */
-    this.setState({
-      wordList: this.state.wordList + this.state.word + " ",
-      wordsPlayed: this.state.wordsPlayed + 1,
-    });
+    if (true) {
+      // The word is valid, check if it has already been played
+      if (!this.state.wordSet.has(this.state.word)) {
+        // The word is not in the played words, add to word list and increment words played
+        this.setState({
+          wordList: this.state.wordList + this.state.word + " ",
+          wordsPlayed: this.state.wordsPlayed + 1,
+          wordSet: this.state.wordSet.add(this.state.word),
+        });
+        // Run validation for if the played word is the longest possible word, if it is the game ends and next round starts
+        if (true) {
+          this.goodEnding();
+        }
+      } else {
+        this.setState({
+          errorMessage: "Uh oh! That word has already been played.",
+        });
+      }
+    } else {
+      // Word is not valid
+      this.setState({
+        errorMessage: "Whoops! " + this.state.word + " is not a word!",
+      });
+    }
   }
 
   calcTime(sec) {
@@ -89,57 +147,59 @@ class Game extends React.Component {
     return (
       <div className="RowTray" id="GameContainer">
         <div className="SideColumn">
-          <Mascot dialogue="Welcome to Dictionary Attack!" />
+          <Mascot dialogue={this.state.mascotDialogue} />
           <Options />
         </div>
         <div className="CenterColumn">
           <h1>Dictionary Attack!</h1>
           <WordBox currentWord={this.state.word} />
+          <p> {this.state.errorMessage}</p>
           <div className="LetterBox">
             <Letter
-              letter="L"
+              letter={this.state.availableLetters[0]}
               handleClick={(letter) => this.addLetter(letter)}
             />
             <Letter
-              letter="O"
+              letter={this.state.availableLetters[1]}
               handleClick={(letter) => this.addLetter(letter)}
             />
             <Letter
-              letter="R"
+              letter={this.state.availableLetters[2]}
               handleClick={(letter) => this.addLetter(letter)}
             />
             <Letter
-              letter="E"
+              letter={this.state.availableLetters[3]}
               handleClick={(letter) => this.addLetter(letter)}
             />
             <Letter
-              letter="M"
+              letter={this.state.availableLetters[4]}
               handleClick={(letter) => this.addLetter(letter)}
             />
             <Letter
-              letter="I"
+              letter={this.state.availableLetters[5]}
               handleClick={(letter) => this.addLetter(letter)}
             />
             <Letter
-              letter="P"
+              letter={this.state.availableLetters[6]}
               handleClick={(letter) => this.addLetter(letter)}
             />
             <Letter
-              letter="S"
+              letter={this.state.availableLetters[7]}
               handleClick={(letter) => this.addLetter(letter)}
             />
             <Letter
-              letter="U"
+              letter={this.state.availableLetters[8]}
               handleClick={(letter) => this.addLetter(letter)}
             />
             <Letter
-              letter="M"
+              letter={this.state.availableLetters[9]}
               handleClick={(letter) => this.addLetter(letter)}
             />
           </div>
           <div className="RowTray">
             <BigButton content="Submit" handleClick={this.submitWord} />
             <BigButton content="Clear" handleClick={this.clearWord} />
+            <BigButton content="Shuffle" handleClick={this.shuffleWord} />
           </div>
         </div>
         <div className="SideColumn">
@@ -198,7 +258,7 @@ const WordList = (props) => {
     return (
       <div id="WordList" className="SidebarBox">
         <h2>Recent Words</h2>
-        <p>{list}</p>
+        <pre>{list}</pre>
       </div>
     );
   }
