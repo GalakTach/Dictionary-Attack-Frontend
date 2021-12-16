@@ -24,6 +24,7 @@ class Game extends React.Component {
       letterTray: [],
     };
     this.addLetter = this.addLetter.bind(this);
+    this.removeLetter = this.removeLetter.bind(this);
     // this.calculateWordScore = this.calculateWordScore(this);
     this.clearWord = this.clearWord.bind(this);
     this.submitWord = this.submitWord.bind(this);
@@ -180,9 +181,9 @@ class Game extends React.Component {
 
 const WordBox = (props) => {
   if (props.currentWord === "") {
-    return <h2 class="WordBox">Current word: None!</h2>;
+    return <h2 className="WordBox">Current word: None!</h2>;
   } else {
-    return <h2 class="WordBox">Current word: {props.currentWord}</h2>;
+    return <h2 className="WordBox">Current word: {props.currentWord}</h2>;
   }
 };
 
@@ -190,7 +191,7 @@ const WordLine = (props) => {
   return (
     <div>
       <h2>Current word:</h2>
-      <div class="WordLine">{props.letters}</div>
+      <div className="WordLine">{props.letters}</div>
     </div>
   );
 };
