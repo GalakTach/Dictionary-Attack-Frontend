@@ -70,15 +70,19 @@ class Game extends React.Component {
 
     if (seconds === 0) {
       clearInterval(this.timer); // stops timer
+      this.timer = 0;
     }
   }
 
   stopTimer() {
     clearInterval(this.timer);
+    this.timer = 0;
   }
 
   resetTimer() {
     this.setState({ seconds: 90, timer: 0, time: this.calcTime(90) });
+    clearInterval(this.timer);
+    this.timer = 0;
   }
 
   render() {
