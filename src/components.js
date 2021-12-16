@@ -39,8 +39,8 @@ class Game extends React.Component {
         wordList: this.state.wordList + this.state.word + " ",
         wordsPlayed: this.state.wordsPlayed + 1,
         score: this.state.score + this.calculateWordScore(this.state.word),
-        word: "",
       });
+      this.clearWord();
     } else {
       // update mascot dialogue/error message to say "Sorry, that word's too short!"
     }
