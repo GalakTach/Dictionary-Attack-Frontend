@@ -9,16 +9,27 @@ class Game extends React.Component {
       word: "",
       wordList: "",
       wordsPlayed: 0,
+      time: {}, //the timer
+      seconds: 90, //number of seconds to be turned into minutes / seconds
       score: 0,
       wordSet: new Set(),
       errorMessage: "",
       mascotDialogue: "Welcome to Dictionary Attack!",
-      wordDefinition: ""
+      wordDefinition: "",
+      startingWord: "LOREMIPSUM",
+      dupStartingWord: "LOREMIPSUM",
+      availableLetters: ["L", "O", "R", "E", "M", "I", "P", "S", "U", "M"],
     };
     this.addLetter = this.addLetter.bind(this);
     this.clearWord = this.clearWord.bind(this);
     this.submitWord = this.submitWord.bind(this);
     this.validateWord = this.validateWord.bind(this);
+    this.timer = 0; // used to set interval when timer starts. needs to be set to 0 again whenever interval is cleared
+    this.startTimer = this.startTimer.bind(this);
+    this.stopTimer = this.stopTimer.bind(this);
+    this.resetTimer = this.resetTimer.bind(this);
+    this.countDown = this.countDown.bind(this);
+    this.shuffleWord = this.shuffleWord.bind(this);
   }
 
   addLetter(letter) {
@@ -29,8 +40,34 @@ class Game extends React.Component {
     this.setState({ word: "", errorMessage: "" });
   }
 
+  shuffleWord() {
+    this.clearWord();
+    const array = this.state.dupStartingWord.split("");
+
+    let currentIndex = array.length,
+      randomIndex;
+
+    // While there remain elements to shuffle...
+    while (currentIndex !== 0) {
+      // Pick a remaining element...
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+
+      // And swap it with the current element.
+      [array[currentIndex], array[randomIndex]] = [
+        array[randomIndex],
+        array[currentIndex],
+      ];
+    }
+    this.setState({ availableLetters: array });
+  }
+
   goodEnding() {
     this.setState({ mascotDialogue: "Nice job!" });
+  }
+
+  badEnding() {
+    this.setState({ mascotDialogue: "Nothing personnel kid." });
   }
 
   submitWord() {
@@ -75,9 +112,53 @@ class Game extends React.Component {
     console.log(call);
   }
 
+  calcTime(sec) {
+    let minDivisor = sec % (60 * 60);
+    let minutes = Math.floor(minDivisor / 60);
+    let secDivisor = minDivisor % 60;
+    let seconds = Math.ceil(secDivisor);
 
+    let timObj = {
+      M: minutes,
+      S: seconds,
+    };
+    return timObj;
+  }
 
+  componentDidMount() {
+    let timeLeftVar = this.calcTime(this.state.seconds);
+    this.setState({ time: timeLeftVar });
+  }
 
+  startTimer() {
+    if (this.timer === 0 && this.state.seconds > 0) {
+      this.timer = setInterval(this.countDown, 1000);
+    }
+  }
+
+  countDown() {
+    let seconds = this.state.seconds - 1;
+    this.setState({
+      time: this.calcTime(seconds), //updates time display
+      seconds: seconds,
+    });
+
+    if (seconds === 0) {
+      clearInterval(this.timer); // stops timer
+      this.timer = 0;
+    }
+  }
+
+  stopTimer() {
+    clearInterval(this.timer);
+    this.timer = 0;
+  }
+
+  resetTimer() {
+    this.setState({ seconds: 90, timer: 0, time: this.calcTime(90) });
+    clearInterval(this.timer);
+    this.timer = 0;
+  }
 
   render() {
     return (
@@ -92,53 +173,62 @@ class Game extends React.Component {
           <p> {this.state.errorMessage}</p>
           <div className="LetterBox">
             <Letter
-              letter="L"
+              letter={this.state.availableLetters[0]}
               handleClick={(letter) => this.addLetter(letter)}
             />
             <Letter
-              letter="O"
+              letter={this.state.availableLetters[1]}
               handleClick={(letter) => this.addLetter(letter)}
             />
             <Letter
-              letter="R"
+              letter={this.state.availableLetters[2]}
               handleClick={(letter) => this.addLetter(letter)}
             />
             <Letter
-              letter="E"
+              letter={this.state.availableLetters[3]}
               handleClick={(letter) => this.addLetter(letter)}
             />
             <Letter
-              letter="M"
+              letter={this.state.availableLetters[4]}
               handleClick={(letter) => this.addLetter(letter)}
             />
             <Letter
-              letter="I"
+              letter={this.state.availableLetters[5]}
               handleClick={(letter) => this.addLetter(letter)}
             />
             <Letter
-              letter="P"
+              letter={this.state.availableLetters[6]}
               handleClick={(letter) => this.addLetter(letter)}
             />
             <Letter
-              letter="S"
+              letter={this.state.availableLetters[7]}
               handleClick={(letter) => this.addLetter(letter)}
             />
             <Letter
-              letter="U"
+              letter={this.state.availableLetters[8]}
               handleClick={(letter) => this.addLetter(letter)}
             />
             <Letter
-              letter="M"
+              letter={this.state.availableLetters[9]}
               handleClick={(letter) => this.addLetter(letter)}
             />
           </div>
           <div className="RowTray">
             <BigButton content="Submit" handleClick={this.validateWord} />
             <BigButton content="Clear" handleClick={this.clearWord} />
+            <BigButton content="Shuffle" handleClick={this.shuffleWord} />
           </div>
         </div>
         <div className="SideColumn">
           <WordList wordlist={this.state.wordList} />
+          {/* button to start timer */}
+          <button onClick={this.startTimer}>Start</button>
+          {/* button to stop timer */}
+          <button onClick={this.stopTimer}>Stop</button>
+          {/* button to reset timer */}
+          <button onClick={this.resetTimer}>Reset</button>
+          {/* displays minutes and seconds */}
+          {this.state.time.M} M {this.state.time.S} S
           <HighScores />
         </div>
       </div>
@@ -185,7 +275,7 @@ const WordList = (props) => {
     return (
       <div id="WordList" className="SidebarBox">
         <h2>Recent Words</h2>
-        <p>{list}</p>
+        <pre>{list}</pre>
       </div>
     );
   }
@@ -226,4 +316,5 @@ const Options = (props) => {
     </div>
   );
 };
+
 export default Game;
