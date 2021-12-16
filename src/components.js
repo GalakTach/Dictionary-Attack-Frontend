@@ -8,6 +8,8 @@ class Game extends React.Component {
       word: "",
       wordList: "",
       wordsPlayed: 0,
+      time: {}, //the timer
+      seconds: 90, //number of seconds to be turned into minutes / seconds
       score: 0,
       wordSet: new Set(),
       errorMessage: "",
@@ -19,6 +21,11 @@ class Game extends React.Component {
     this.addLetter = this.addLetter.bind(this);
     this.clearWord = this.clearWord.bind(this);
     this.submitWord = this.submitWord.bind(this);
+    this.timer = 0; // used to set interval when timer starts. needs to be set to 0 again whenever interval is cleared
+    this.startTimer = this.startTimer.bind(this);
+    this.stopTimer = this.stopTimer.bind(this);
+    this.resetTimer = this.resetTimer.bind(this);
+    this.countDown = this.countDown.bind(this);
     this.shuffleWord = this.shuffleWord.bind(this);
   }
 
@@ -88,6 +95,54 @@ class Game extends React.Component {
     }
   }
 
+  calcTime(sec) {
+    let minDivisor = sec % (60 * 60);
+    let minutes = Math.floor(minDivisor / 60);
+    let secDivisor = minDivisor % 60;
+    let seconds = Math.ceil(secDivisor);
+
+    let timObj = {
+      M: minutes,
+      S: seconds,
+    };
+    return timObj;
+  }
+
+  componentDidMount() {
+    let timeLeftVar = this.calcTime(this.state.seconds);
+    this.setState({ time: timeLeftVar });
+  }
+
+  startTimer() {
+    if (this.timer === 0 && this.state.seconds > 0) {
+      this.timer = setInterval(this.countDown, 1000);
+    }
+  }
+
+  countDown() {
+    let seconds = this.state.seconds - 1;
+    this.setState({
+      time: this.calcTime(seconds), //updates time display
+      seconds: seconds,
+    });
+
+    if (seconds === 0) {
+      clearInterval(this.timer); // stops timer
+      this.timer = 0;
+    }
+  }
+
+  stopTimer() {
+    clearInterval(this.timer);
+    this.timer = 0;
+  }
+
+  resetTimer() {
+    this.setState({ seconds: 90, timer: 0, time: this.calcTime(90) });
+    clearInterval(this.timer);
+    this.timer = 0;
+  }
+
   render() {
     return (
       <div className="RowTray" id="GameContainer">
@@ -149,6 +204,14 @@ class Game extends React.Component {
         </div>
         <div className="SideColumn">
           <WordList wordlist={this.state.wordList} />
+          {/* button to start timer */}
+          <button onClick={this.startTimer}>Start</button>
+          {/* button to stop timer */}
+          <button onClick={this.stopTimer}>Stop</button>
+          {/* button to reset timer */}
+          <button onClick={this.resetTimer}>Reset</button>
+          {/* displays minutes and seconds */}
+          {this.state.time.M} M {this.state.time.S} S
           <HighScores />
         </div>
       </div>
@@ -236,4 +299,5 @@ const Options = (props) => {
     </div>
   );
 };
+
 export default Game;
