@@ -1,11 +1,17 @@
 import React from "react";
 import "./components.css";
 
+// declaring these here for readability + easier balance changes
+const baseWordScore = 200;
+const bonusLetterMultiplier = 1.5;
+const minimumWordLength = 3;
+
 class Game extends React.Component {
   constructor(props) {
     super(props);
     this.state = { word: "", wordList: "", wordsPlayed: 0, time: 0, score: 0 };
     this.addLetter = this.addLetter.bind(this);
+    // this.calculateWordScore = this.calculateWordScore(this);
     this.clearWord = this.clearWord.bind(this);
     this.submitWord = this.submitWord.bind(this);
   }
@@ -14,16 +20,30 @@ class Game extends React.Component {
     this.setState({ word: this.state.word + letter });
   }
 
+  calculateWordScore(word) {
+    return (
+      baseWordScore *
+      Math.pow(bonusLetterMultiplier, word.length - minimumWordLength)
+    );
+  }
+
   clearWord() {
     this.setState({ word: "" });
   }
 
   submitWord() {
     /* link to word validation backend here */
-    this.setState({
-      wordList: this.state.wordList + this.state.word + " ",
-      wordsPlayed: this.state.wordsPlayed + 1,
-    });
+    if (this.state.word.length >= 3) {
+      // check word length
+      this.setState({
+        wordList: this.state.wordList + this.state.word + " ",
+        wordsPlayed: this.state.wordsPlayed + 1,
+        score: this.state.score + this.calculateWordScore(this.state.word),
+        word: "",
+      });
+    } else {
+      // update mascot dialogue/error message to say "Sorry, that word's too short!"
+    }
   }
 
   render() {
