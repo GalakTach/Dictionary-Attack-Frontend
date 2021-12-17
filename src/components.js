@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import "./components.css";
 import axios from "axios";
 import wordsArray from "./startingWords";
@@ -30,7 +30,8 @@ class Game extends React.Component {
       startingWord: "Lorem",
       mascotSrc: "../mascot.png",
       gameOver: false,
-      highScores: []
+      highScores: [],
+      userNameInput: "",
     };
     this.addLetter = this.addLetter.bind(this);
     this.removeLetter = this.removeLetter.bind(this);
@@ -50,14 +51,12 @@ class Game extends React.Component {
   }
 
   componentDidMount() {
-    
     this.setState({
       letterTray: this.generateLetterTray(),
     });
     let timeLeftVar = this.calcTime(this.state.seconds);
     this.setState({ time: timeLeftVar });
     this.getHighScores();
-    
   }
 
   getRandomWord() {
@@ -224,30 +223,27 @@ class Game extends React.Component {
 
   async validateWord() {
     if (!this.state.gameOver) {
-      
-    const inputedWord = this.state.word;
+      const inputedWord = this.state.word;
 
-    const call = await axios.get(
-      "http://localhost:5000/api/validateWord/" + inputedWord
-    );
-    console.log(call);
-    if (!call["data"]["error"]) {
-      if (call["data"]["definitions"]) {
-        this.setState({
-          wordDefinition: call["data"]["definitions"].definition,
-        });
-        this.submitWord();
+      const call = await axios.get(
+        "http://localhost:5000/api/validateWord/" + inputedWord
+      );
+      console.log(call);
+      if (!call["data"]["error"]) {
+        if (call["data"]["definitions"]) {
+          this.setState({
+            wordDefinition: call["data"]["definitions"].definition,
+          });
+          this.submitWord();
+        } else {
+          this.setState({
+            errorMessage:
+              "Word exists but there is no definition. No points. Try Again Dumbass",
+          });
+        }
       } else {
-        this.setState({
-          errorMessage:
-            "Word exists but there is no definition. No points. Try Again Dumbass",
-        });
+        this.setState({ errorMessage: "Word does not exist" });
       }
-    } else {
-      this.setState({ errorMessage: "Word does not exist" });
-    }
-    
- 
     } else {
       this.setState({
         mascotDialogue:
@@ -255,15 +251,14 @@ class Game extends React.Component {
       });
     }
   }
-  
-  async getHighScores(){
-    var scores = await axios.get('http://localhost:5000/api/getAllUsers');
-    var userScores = [];
-    for(let i = 0; i < scores['data'].length; i++){
-      userScores.push(scores['data'][i]);
-    }
-    this.setState({highScores : userScores});
 
+  async getHighScores() {
+    var scores = await axios.get("http://localhost:5000/api/getAllUsers");
+    var userScores = [];
+    for (let i = 0; i < scores["data"].length; i++) {
+      userScores.push(scores["data"][i]);
+    }
+    this.setState({ highScores: userScores });
   }
 
   calcTime(sec) {
@@ -349,7 +344,7 @@ class Game extends React.Component {
             dialogue={this.state.mascotDialogue}
             src={this.state.mascotSrc}
           />
-          <Options />
+          <Options userNameIn={this.state.userNameInput} />
           <button onClick={this.reset}>Reset Game</button>
         </div>
         <div className="CenterColumn">
@@ -372,7 +367,7 @@ class Game extends React.Component {
         </div>
         <div className="SideColumn">
           <WordList wordlist={this.state.wordList} />
-          <HighScores highScores={this.state.highScores}/>
+          <HighScores highScores={this.state.highScores} />
         </div>
       </div>
     );
@@ -458,29 +453,46 @@ const HighScores = (props) => {
           <th>Highscore</th>
           <th>Time</th>
         </tr>
-          {  props.highScores  ? (
-                props.highScores.map((user) => (
-                  <tr>
-                    <th>{user.username}</th>
-                    <th>{user.highscore}</th>
-                    <th>{user.time}</th>
-                  </tr>
-                ))
-                ):(
-                
-                  <div>No High Scores Yet</div>
-                ) 
-              }
-        </table>
+        {props.highScores ? (
+          props.highScores.map((user) => (
+            <tr>
+              <th>{user.username}</th>
+              <th>{user.highscore}</th>
+              <th>{user.time}</th>
+            </tr>
+          ))
+        ) : (
+          <div>No High Scores Yet</div>
+        )}
+      </table>
     </div>
   );
 };
 
-const Options = (props) => {
+const UsernameForm = (props) => {
+  let [userNameIn, setName] = useState("");
+  console.log(userNameIn);
+
+  return (
+    <form>
+      <label>
+        Username:&nbsp;
+        <input
+          type="text"
+          value={userNameIn}
+          onChange={(e) => setName(e.target.value)}
+        />
+      </label>
+    </form>
+  );
+};
+
+const Options = () => {
   return (
     <div id="Options" className="SidebarBox">
       <h2>Options</h2>
-      <p>No options yet!</p>
+      <UsernameForm></UsernameForm>
+      {/* <p>No options yet!</p> */}
     </div>
   );
 };
