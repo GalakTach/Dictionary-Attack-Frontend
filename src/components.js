@@ -230,6 +230,7 @@ class Game extends React.Component {
     const call = await axios.get(
       "http://localhost:5000/api/validateWord/" + inputedWord
     );
+    console.log(call);
     if (!call["data"]["error"]) {
       if (call["data"]["definitions"]) {
         this.setState({
@@ -246,7 +247,7 @@ class Game extends React.Component {
       this.setState({ errorMessage: "Word does not exist" });
     }
     
-      this.submitWord();
+ 
     } else {
       this.setState({
         mascotDialogue:
