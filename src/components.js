@@ -31,6 +31,7 @@ class Game extends React.Component {
       startingWord: "LOREMIPSUM",
       availableLetters: ["L", "O", "R", "E", "M", "I", "P", "S", "U", "M"],
       mascotSrc: "../mascot.png",
+      gameOver: false,
     };
     this.addLetter = this.addLetter.bind(this);
     this.removeLetter = this.removeLetter.bind(this);
@@ -45,7 +46,6 @@ class Game extends React.Component {
     this.stopTimer = this.stopTimer.bind(this);
     this.resetTimer = this.resetTimer.bind(this);
     this.countDown = this.countDown.bind(this);
-    this.shuffleWord = this.shuffleWord.bind(this);
   }
 
   componentDidMount() {
@@ -56,6 +56,7 @@ class Game extends React.Component {
 
   generateLetterTray() {
     let tray = [];
+    this.setState({ wordDisplay: [] });
 
     const array = this.state.startingWord.split("");
 
@@ -103,15 +104,15 @@ class Game extends React.Component {
       availableTiles: Array(startingTileCount).fill(1),
       letterTray: this.generateLetterTray(),
       wordSet: new Set(),
+      mascotSrc: "../mascot.png",
     });
 
     //reset the timer
     this.resetTimer();
-    this.shuffleWord();
   }
 
   addLetter(letter, trayPosition, wordPosition) {
-    if (this.timer === 0) {
+    if (!this.state.gameOver) {
       this.startTimer();
     }
     if (this.state.availableTiles[trayPosition] === 1) {
@@ -137,7 +138,7 @@ class Game extends React.Component {
         return state;
       });
     } else {
-      console.log("Letter unavailable!");
+      this.setState({ mascotDialogue: "Can't select the same letter twice!" });
     }
   }
 
@@ -158,9 +159,9 @@ class Game extends React.Component {
   }
 
   calculateWordScore(word) {
-    return (
+    return Math.floor(
       baseWordScore *
-      Math.pow(bonusLetterMultiplier, word.length - minimumWordLength)
+        Math.pow(bonusLetterMultiplier, word.length - minimumWordLength)
     );
   }
 
@@ -173,48 +174,44 @@ class Game extends React.Component {
     });
   }
 
-  shuffleWord() {
-    this.setState({ letterTray: this.generateLetterTray() });
-  }
-
   goodEnding() {
-    this.setState({ mascotDialogue: "Nice job!" });
+    this.setState({
+      score: this.state.score + baseWordScore * this.state.seconds,
+      mascotDialogue: "You got the biggest word! Nice job!",
+      gameOver: true,
+    });
     this.stopTimer();
   }
 
   badEnding() {
-    this.setState({ mascotDialogue: "Nothing personnel kid." });
+    this.setState({ mascotDialogue: "Nothing personnel kid.", gameOver: true });
   }
 
   submitWord() {
-    if (this.state.word.length >= 3) {
-      // The word is valid, check if it has already been played
-      if (!this.state.wordSet.has(this.state.word)) {
-        // The word is not in the played words, add to word list and increment words played
-        this.setState({
-          wordList: this.state.wordList + this.state.word + " ",
-          wordsPlayed: this.state.wordsPlayed + 1,
-          wordSet: this.state.wordSet.add(this.state.word),
-          score: this.state.score + this.calculateWordScore(this.state.word),
-        });
-        this.clearWord();
-        // Run validation for if the played word is the longest possible word, if it is the game ends and next round starts
-        if (this.state.word === this.state.startingWord) {
-          this.goodEnding();
-        } else {
-        }
-      } else {
-        this.setState({
-          errorMessage: "Uh oh! That word has already been played.",
-        });
+    if (!this.state.wordSet.has(this.state.word)) {
+      // The word is not in the played words, add to word list and increment words played
+      this.setState({
+        wordList: this.state.wordList + this.state.word + " ",
+        wordsPlayed: this.state.wordsPlayed + 1,
+        wordSet: this.state.wordSet.add(this.state.word),
+        score: this.state.score + this.calculateWordScore(this.state.word),
+        seconds: this.state.seconds + this.state.word.length * 2,
+      });
+      this.clearWord();
+      // Run validation for if the played word is the longest possible word, if it is the game ends and next round starts
+      if (this.state.word === this.state.startingWord) {
+        this.goodEnding();
       }
     } else {
-      // update mascot dialogue/error message to say "Sorry, that word's too short!"
+      this.setState({
+        errorMessage: "Uh oh! That word has already been played.",
+      });
     }
   }
 
   async validateWord() {
-    /*
+    if (!this.state.gameOver) {
+      /*
     const inputedWord = this.state.word;
     const call = await axios.get(
       "http://localhost:5000/api/validateWord/" + inputedWord
@@ -237,7 +234,13 @@ class Game extends React.Component {
 
     console.log(call);
     */
-    this.submitWord();
+      this.submitWord();
+    } else {
+      this.setState({
+        mascotDialogue:
+          "The game is already over! Click Reset to start a new game!",
+      });
+    }
   }
 
   calcTime(sec) {
@@ -272,19 +275,25 @@ class Game extends React.Component {
       clearInterval(this.timer); // stops timer
       this.timer = 0;
       this.badEnding();
-    } else if (seconds <= 10) {
+    } else if (
+      seconds <= 10 &&
+      this.state.mascotSrc !== "../thesaurusrex-1.png"
+    ) {
       // Look
       this.setState({
         mascotSrc: "../thesaurusrex-1.png",
         mascotDialogue: "10 seconds left!",
       });
-    } else if (seconds <= 20) {
+    } else if (
+      seconds <= 20 &&
+      this.state.mascotSrc !== "../thesaurusrex.png"
+    ) {
       // Gun
       this.setState({
         mascotSrc: "../thesaurusrex.png",
         mascotDialogue: "20 seconds left!",
       });
-    } else if (seconds > 20 && seconds < 30) {
+    } else if (seconds > 20 && this.state.mascotSrc !== "../mascot.png") {
       // Put Gun Away
       this.setState({
         mascotSrc: "../mascot.png",
@@ -303,6 +312,7 @@ class Game extends React.Component {
       seconds: startingRoundLength,
       timer: 0,
       time: this.calcTime(startingRoundLength),
+      gameOver: false,
     });
     clearInterval(this.timer);
     this.timer = 0;
@@ -335,17 +345,10 @@ class Game extends React.Component {
           <div className="RowTray">
             <BigButton content="Submit" handleClick={this.validateWord} />
             <BigButton content="Clear" handleClick={this.clearWord} />
-            <BigButton content="Shuffle" handleClick={this.shuffleWord} />
           </div>
         </div>
         <div className="SideColumn">
           <WordList wordlist={this.state.wordList} />
-          {/* button to start timer */}
-          <button onClick={this.startTimer}>Start</button>
-          {/* button to stop timer */}
-          <button onClick={this.stopTimer}>Stop</button>
-          {/* button to reset timer */}
-          {/* <button onClick={this.resetTimer}>Reset</button> */}
           <HighScores />
         </div>
       </div>
