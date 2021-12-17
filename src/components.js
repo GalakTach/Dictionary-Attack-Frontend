@@ -7,7 +7,7 @@ const baseWordScore = 200;
 const bonusLetterMultiplier = 1.5;
 const minimumWordLength = 3;
 const startingTileCount = 10;
-const startingRoundLength = 60;
+const startingRoundLength = 30;
 
 const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
@@ -30,6 +30,7 @@ class Game extends React.Component {
       wordDefinition: "",
       startingWord: "LOREMIPSUM",
       availableLetters: ["L", "O", "R", "E", "M", "I", "P", "S", "U", "M"],
+      mascotSrc: "../mascot.png",
     };
     this.addLetter = this.addLetter.bind(this);
     this.removeLetter = this.removeLetter.bind(this);
@@ -101,6 +102,7 @@ class Game extends React.Component {
       wordDisplay: [],
       availableTiles: Array(startingTileCount).fill(1),
       letterTray: this.generateLetterTray(),
+      wordSet: new Set(),
     });
 
     //reset the timer
@@ -109,6 +111,9 @@ class Game extends React.Component {
   }
 
   addLetter(letter, trayPosition, wordPosition) {
+    if (this.timer === 0) {
+      this.startTimer();
+    }
     if (this.state.availableTiles[trayPosition] === 1) {
       this.setState({
         word: this.state.word + letter,
@@ -174,6 +179,7 @@ class Game extends React.Component {
 
   goodEnding() {
     this.setState({ mascotDialogue: "Nice job!" });
+    this.stopTimer();
   }
 
   badEnding() {
@@ -193,8 +199,9 @@ class Game extends React.Component {
         });
         this.clearWord();
         // Run validation for if the played word is the longest possible word, if it is the game ends and next round starts
-        if (true) {
+        if (this.state.word === this.state.startingWord) {
           this.goodEnding();
+        } else {
         }
       } else {
         this.setState({
@@ -260,8 +267,29 @@ class Game extends React.Component {
     });
 
     if (seconds === 0) {
+      // Shoot
+      this.setState({ mascotSrc: "../thesaurusrex-2.png" });
       clearInterval(this.timer); // stops timer
       this.timer = 0;
+      this.badEnding();
+    } else if (seconds <= 10) {
+      // Look
+      this.setState({
+        mascotSrc: "../thesaurusrex-1.png",
+        mascotDialogue: "10 seconds left!",
+      });
+    } else if (seconds <= 20) {
+      // Gun
+      this.setState({
+        mascotSrc: "../thesaurusrex.png",
+        mascotDialogue: "20 seconds left!",
+      });
+    } else if (seconds > 20 && seconds < 30) {
+      // Put Gun Away
+      this.setState({
+        mascotSrc: "../mascot.png",
+        mascotDialogue: "Safe....for now",
+      });
     }
   }
 
@@ -284,7 +312,10 @@ class Game extends React.Component {
     return (
       <div className="RowTray" id="GameContainer">
         <div className="SideColumn">
-          <Mascot dialogue={this.state.mascotDialogue} />
+          <Mascot
+            dialogue={this.state.mascotDialogue}
+            src={this.state.mascotSrc}
+          />
           <Options />
           <button onClick={this.reset}>Reset Game</button>
         </div>
@@ -377,7 +408,7 @@ const Mascot = (props) => {
   return (
     <div id="MascotBox" className="SidebarBox">
       <img
-        src="../mascot.png"
+        src={props.src}
         id="Mascot"
         alt="Thesaurus Rex"
         title="Thesaurus Rex"
