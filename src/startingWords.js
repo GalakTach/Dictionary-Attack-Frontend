@@ -2049,7 +2049,6 @@ let wordsArray = [
   "Speculator",
   "speechment",
   "spellcraft",
-  "spermatize",
   "spherulate",
   "spyglasses",
   "spillikins",
