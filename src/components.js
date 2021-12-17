@@ -30,6 +30,7 @@ class Game extends React.Component {
       startingWord: "Lorem",
       mascotSrc: "../mascot.png",
       gameOver: false,
+      highScores: []
     };
     this.addLetter = this.addLetter.bind(this);
     this.removeLetter = this.removeLetter.bind(this);
@@ -45,14 +46,18 @@ class Game extends React.Component {
     this.resetTimer = this.resetTimer.bind(this);
     this.countDown = this.countDown.bind(this);
     this.getRandomWord = this.getRandomWord.bind(this);
+    this.getHighScores = this.getHighScores.bind(this);
   }
 
   componentDidMount() {
+    
     this.setState({
       letterTray: this.generateLetterTray(),
     });
     let timeLeftVar = this.calcTime(this.state.seconds);
     this.setState({ time: timeLeftVar });
+    this.getHighScores();
+    
   }
 
   getRandomWord() {
@@ -119,7 +124,6 @@ class Game extends React.Component {
     //reset the timer
     this.resetTimer();
   }
-
   addLetter(letter, trayPosition, wordPosition) {
     if (!this.state.gameOver) {
       this.startTimer();
@@ -220,8 +224,9 @@ class Game extends React.Component {
 
   async validateWord() {
     if (!this.state.gameOver) {
-      /*
+      
     const inputedWord = this.state.word;
+
     const call = await axios.get(
       "http://localhost:5000/api/validateWord/" + inputedWord
     );
@@ -240,9 +245,7 @@ class Game extends React.Component {
     } else {
       this.setState({ errorMessage: "Word does not exist" });
     }
-
-    console.log(call);
-    */
+    
       this.submitWord();
     } else {
       this.setState({
@@ -250,6 +253,16 @@ class Game extends React.Component {
           "The game is already over! Click Reset to start a new game!",
       });
     }
+  }
+  
+  async getHighScores(){
+    var scores = await axios.get('http://localhost:5000/api/getAllUsers');
+    var userScores = [];
+    for(let i = 0; i < scores['data'].length; i++){
+      userScores.push(scores['data'][i]);
+    }
+    this.setState({highScores : userScores});
+
   }
 
   calcTime(sec) {
@@ -358,7 +371,7 @@ class Game extends React.Component {
         </div>
         <div className="SideColumn">
           <WordList wordlist={this.state.wordList} />
-          <HighScores />
+          <HighScores highScores={this.state.highScores}/>
         </div>
       </div>
     );
@@ -438,7 +451,26 @@ const HighScores = (props) => {
   return (
     <div id="HighScores" className="SidebarBox">
       <h2>High Scores</h2>
-      <p>No high scores yet!</p>
+      <table>
+        <tr>
+          <th>Username</th>
+          <th>Highscore</th>
+          <th>Time</th>
+        </tr>
+          {  props.highScores  ? (
+                props.highScores.map((user) => (
+                  <tr>
+                    <th>{user.username}</th>
+                    <th>{user.highscore}</th>
+                    <th>{user.time}</th>
+                  </tr>
+                ))
+                ):(
+                
+                  <div>No High Scores Yet</div>
+                ) 
+              }
+        </table>
     </div>
   );
 };

@@ -160,3 +160,8 @@ pre {
 #WordList {
   min-height: 446px;
 }
+table, th, td {
+  border: 1px solid white;
+  text-align: center;
+  width: 100%;
+}
