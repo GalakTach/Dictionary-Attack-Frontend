@@ -1,6 +1,7 @@
 import React from "react";
 import "./components.css";
 import axios from "axios";
+import wordsArray from "./startingWords";
 
 // declaring these here for readability + easier balance changes
 const baseWordScore = 200;
@@ -8,8 +9,6 @@ const bonusLetterMultiplier = 1.5;
 const minimumWordLength = 3;
 const startingTileCount = 10;
 const startingRoundLength = 30;
-
-const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 class Game extends React.Component {
   constructor(props) {
@@ -28,8 +27,7 @@ class Game extends React.Component {
       errorMessage: "",
       mascotDialogue: "Welcome to Dictionary Attack!",
       wordDefinition: "",
-      startingWord: "LOREMIPSUM",
-      availableLetters: ["L", "O", "R", "E", "M", "I", "P", "S", "U", "M"],
+      startingWord: "",
       mascotSrc: "../mascot.png",
       gameOver: false,
     };
@@ -46,17 +44,29 @@ class Game extends React.Component {
     this.stopTimer = this.stopTimer.bind(this);
     this.resetTimer = this.resetTimer.bind(this);
     this.countDown = this.countDown.bind(this);
+    this.getRandomWord = this.getRandomWord.bind(this);
   }
 
   componentDidMount() {
-    this.setState({ letterTray: this.generateLetterTray() });
+    this.setState({
+      letterTray: this.generateLetterTray(),
+    });
     let timeLeftVar = this.calcTime(this.state.seconds);
     this.setState({ time: timeLeftVar });
   }
 
+  getRandomWord() {
+    let i = Math.floor(Math.random() * wordsArray.length);
+    let randWord = wordsArray[i].toUpperCase();
+    console.log(randWord);
+    return randWord;
+  }
+
   generateLetterTray() {
     let tray = [];
-    this.setState({ wordDisplay: [] });
+    let randWord = this.getRandomWord();
+
+    this.setState({ wordDisplay: [], startingWord: randWord });
 
     const array = this.state.startingWord.split("");
 
