@@ -471,18 +471,31 @@ const HighScores = (props) => {
 
 const UsernameForm = (props) => {
   let [userNameIn, setName] = useState("");
+  let clicked = false;
   console.log(userNameIn);
 
+  const handleSubmit = (event) => {
+    //submit button after user enters name, can only be clicked once even if they change username
+    event.preventDefault();
+    if (userNameIn.length >= 3 && !clicked) {
+      clicked = true;
+      console.log("fart  " + userNameIn);
+    }
+  };
+
   return (
-    <form>
+    <form onSubmit={handleSubmit}>
       <label>
         Username:&nbsp;
         <input
           type="text"
+          placeholder="Min 3 Characters"
           value={userNameIn}
           onChange={(e) => setName(e.target.value)}
         />
+        &nbsp;
       </label>
+      <input type="submit" />
     </form>
   );
 };
@@ -492,6 +505,7 @@ const Options = () => {
     <div id="Options" className="SidebarBox">
       <h2>Options</h2>
       <UsernameForm></UsernameForm>
+      {/* only render if user has achieved a high score */}
       {/* <p>No options yet!</p> */}
     </div>
   );
