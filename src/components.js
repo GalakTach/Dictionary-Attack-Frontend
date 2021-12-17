@@ -27,7 +27,7 @@ class Game extends React.Component {
       errorMessage: "",
       mascotDialogue: "Welcome to Dictionary Attack!",
       wordDefinition: "",
-      startingWord: "",
+      startingWord: "Lorem",
       mascotSrc: "../mascot.png",
       gameOver: false,
     };
@@ -67,8 +67,8 @@ class Game extends React.Component {
     let randWord = this.getRandomWord();
 
     this.setState({ wordDisplay: [], startingWord: randWord });
-
-    const array = this.state.startingWord.split("");
+    console.log(randWord);
+    const array = randWord.split("");
 
     let currentIndex = array.length,
       randomIndex;
@@ -87,7 +87,6 @@ class Game extends React.Component {
     }
 
     for (let i = 0; i < array.length; i++) {
-      console.log(array[i]);
       tray[i] = (
         <Letter
           key={i}
