@@ -226,6 +226,7 @@ class Game extends React.Component {
 
   submitWord() {
     // function to handle submitting the current word
+    let wordMessage = this.state.word + ": " + this.state.wordDefinition;
     if (!this.state.wordSet.has(this.state.word)) {
       // The word is not in the played words, add to word list and increment words played
       this.setState({
@@ -234,12 +235,13 @@ class Game extends React.Component {
         wordSet: this.state.wordSet.add(this.state.word),
         score: this.state.score + this.calculateWordScore(this.state.word),
         seconds: this.state.seconds + this.state.word.length * 2,
+        mascotDialogue: wordMessage,
       });
-      this.clearWord();
       // Run validation for if the played word is the longest possible word, if it is the game ends and next round starts
       if (this.state.word === this.state.startingWord) {
         this.goodEnding();
       }
+      this.clearWord();
     } else {
       this.setState({
         errorMessage: "Uh oh! That word has already been played.",
@@ -261,7 +263,11 @@ class Game extends React.Component {
           this.setState({
             wordDefinition: call["data"]["definitions"].definition,
           });
-          this.submitWord();
+          if (call["data"]["definitions"].definition === "{}") {
+            console.log("Oopsie Poopsie!");
+          } else {
+            this.submitWord();
+          }
         } else {
           this.setState({
             errorMessage:
@@ -359,6 +365,7 @@ class Game extends React.Component {
       timer: 0,
       time: this.calcTime(startingRoundLength),
       gameOver: false,
+      mascotDialogue: "Welcome to Dictionary Attack!",
     });
     clearInterval(this.timer);
     this.timer = 0;
