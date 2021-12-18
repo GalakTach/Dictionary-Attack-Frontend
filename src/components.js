@@ -31,7 +31,7 @@ class Game extends React.Component {
       mascotSrc: "../mascot.png",
       gameOver: false,
       highScores: [],
-      userNameInput: "",
+      userNameInput: "", //submitted username for highscore saving
     };
     this.addLetter = this.addLetter.bind(this);
     this.removeLetter = this.removeLetter.bind(this);
@@ -55,8 +55,8 @@ class Game extends React.Component {
     this.setState({
       letterTray: this.generateLetterTray(),
     });
-    let timeLeftVar = this.calcTime(this.state.seconds);
-    this.setState({ time: timeLeftVar });
+    let timeLeftVar = this.calcTime(this.state.seconds); // gets min/sec to initialize time display
+    this.setState({ time: timeLeftVar }); //sets the timer display
     this.getHighScores();
   }
 
@@ -263,6 +263,7 @@ class Game extends React.Component {
   }
 
   calcTime(sec) {
+    // function to convert seconds to minutes and seconds
     let minDivisor = sec % (60 * 60);
     let minutes = Math.floor(minDivisor / 60);
     let secDivisor = minDivisor % 60;
@@ -276,12 +277,14 @@ class Game extends React.Component {
   }
 
   startTimer() {
+    // function to start the timer if it hasn't been started yet
     if (this.timer === 0 && this.state.seconds > 0) {
       this.timer = setInterval(this.countDown, 1000);
     }
   }
 
   countDown() {
+    // function to count down the seconds and does some mascot animations based on time
     console.log("state " + this.state.userNameInput);
     let seconds = this.state.seconds - 1;
     this.setState({
@@ -323,11 +326,13 @@ class Game extends React.Component {
   }
 
   stopTimer() {
+    // function to stop timer by clearing interval and setting timer state back to 0
     clearInterval(this.timer);
     this.timer = 0;
   }
 
   resetTimer() {
+    // function to reset timer back to initial state
     this.setState({
       seconds: startingRoundLength,
       timer: 0,
@@ -339,7 +344,7 @@ class Game extends React.Component {
   }
 
   setName(Name) {
-    //recieves userNameIn from options user name form below
+    // function to recieve userNameIn from options user name form and allows userNameInput to be set to it
     this.setState({ userNameInput: Name });
   }
 
@@ -352,8 +357,10 @@ class Game extends React.Component {
             src={this.state.mascotSrc}
           />
           <Options
-            userNameIn={this.state.userNameInput}
+            //userNameIn={this.state.userNameInput}
+            // sends handleName the setName function to adjust the state
             handleName={this.setName}
+            // sends handleClick the reset function so the user can reset the game
             handleClick={this.reset}
           />
           {/* <button onClick={this.reset}>Reset Game</button> */}
@@ -481,21 +488,23 @@ const HighScores = (props) => {
 };
 
 const UsernameForm = (props) => {
-  let [userNameIn, setName] = useState("");
-  let clicked = false;
-  console.log(userNameIn);
+  // component that contains the form for users to submit a name to save their high score
+  let [userNameIn, setName] = useState(""); // state variable used to save user input name
+  let clicked = false; // boolean used to make sure the submit button is only used once
+  // console.log(userNameIn);
 
   const handleSubmit = (event) => {
-    //submit button after user enters name, can only be clicked once even if they change username
+    // submit button after user enters name, can only be clicked once even if they change username
     event.preventDefault();
     if (userNameIn.length >= 3 && !clicked) {
       clicked = true;
-      console.log("fart  " + userNameIn);
-      props.handleName(userNameIn);
+      // console.log("fart  " + userNameIn);
+      props.handleName(userNameIn); // handleName function passed through props that sends back user input name to be saved to userNameInput state variable
     }
   };
 
   return (
+    // form for user input with submit button, sets userNameIn on text box value change as user types
     <form onSubmit={handleSubmit}>
       <label>
         Username:&nbsp;
@@ -513,12 +522,14 @@ const UsernameForm = (props) => {
 };
 
 const Options = (props) => {
+  // component for options box that contains the user name form and reset game button
   return (
     <div id="Options" className="SidebarBox">
       <h2>Options</h2>
       <UsernameForm handleName={props.handleName}></UsernameForm>
       {/* only render if user has achieved a high score */}
       {/* <p>No options yet!</p> */}
+      {/* handleClick function passed through props to allow user to reset the game with reset function */}
       <button onClick={() => props.handleClick()}>Reset Game</button>
     </div>
   );
