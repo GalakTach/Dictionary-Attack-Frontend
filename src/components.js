@@ -29,7 +29,7 @@ class Game extends React.Component {
       mascotDialogue: "Welcome to Dictionary Attack!", // string for displaying the mascot's dialogue
       wordDefinition: "", // string for displaying the word's definition (retrieved from backend)
       startingWord: "Lorem",
-      mascotSrc: "../mascot.png", // file path for the mascot image
+      mascotImage: "../mascot.png", // file path for the mascot image
       gameOver: false, // boolean for storing game finish state
       highScores: [], // array for holding high scores ()
       userNameInput: "", // string for holding the user's submitted username (send to backend for high scores)
@@ -133,7 +133,7 @@ class Game extends React.Component {
       availableTiles: Array(startingTileCount).fill(1),
       letterTray: this.generateLetterTray(),
       wordSet: new Set(),
-      mascotSrc: "../mascot.png",
+      mascotImage: "../mascot.png",
     });
 
     // reset the timer
@@ -164,7 +164,6 @@ class Game extends React.Component {
             }
           />,
         ]),
-        errorMessage: "",
       });
       this.setState((state) => {
         // console.log(state.availableTiles.toString() + " ==>"); // debug statement
@@ -190,7 +189,6 @@ class Game extends React.Component {
       // also trim the internal string to match
       state.word = state.word.substring(0, wordPosition);
       // console.log(state.availableTiles.toString());
-      state.errorMessage = "";
       return state;
     });
   }
@@ -201,7 +199,6 @@ class Game extends React.Component {
       word: "",
       wordDisplay: [],
       availableTiles: this.state.availableTiles.fill(1),
-      errorMessage: "",
     });
   }
 
@@ -225,7 +222,7 @@ class Game extends React.Component {
       this.clearWord();
     } else {
       this.setState({
-        errorMessage: "Uh oh! That word has already been played.",
+        mascotDialogue: "Uh oh! I think you've already played that one.",
       });
     }
   }
@@ -251,12 +248,13 @@ class Game extends React.Component {
           }
         } else {
           this.setState({
-            errorMessage:
-              "Word exists but there is no definition. No points. Try Again Dumbass",
+            mascotDialogue: "Uh... I couldn't find a definition for that one.",
           });
         }
       } else {
-        this.setState({ errorMessage: "Word does not exist" });
+        this.setState({
+          mascotDialogue: "Sorry, I couldn't find that word in the dictionary.",
+        });
       }
     } else {
       this.setState({
@@ -329,26 +327,26 @@ class Game extends React.Component {
 
     if (seconds === 0) {
       // Shoot
-      this.setState({ mascotSrc: "../thesaurusrex-2.png" });
+      this.setState({ mascotImage: "../thesaurusrex-2.png" });
       clearInterval(this.timer); // stops timer
       this.timer = 0;
       this.badEnding();
     } else if (seconds <= 10) {
       // Look
       this.setState({
-        mascotSrc: "../thesaurusrex-1.png",
+        mascotImage: "../thesaurusrex-1.png",
         mascotDialogue: "10 seconds left!",
       });
     } else if (seconds <= 20 && seconds > 10) {
       // Gun
       this.setState({
-        mascotSrc: "../thesaurusrex.png",
+        mascotImage: "../thesaurusrex.png",
         mascotDialogue: "20 seconds left!",
       });
-    } else if (seconds > 20 && this.state.mascotSrc !== "../mascot.png") {
+    } else if (seconds > 20 && this.state.mascotImage !== "../mascot.png") {
       // Put Gun Away
       this.setState({
-        mascotSrc: "../mascot.png",
+        mascotImage: "../mascot.png",
         mascotDialogue: "Safe....for now",
       });
     }
@@ -403,7 +401,7 @@ class Game extends React.Component {
         <div className="SideColumn">
           <Mascot
             dialogue={this.state.mascotDialogue}
-            src={this.state.mascotSrc}
+            src={this.state.mascotImage}
           />
           <Options
             //userNameIn={this.state.userNameInput}
@@ -422,7 +420,7 @@ class Game extends React.Component {
               <h3>Time: {this.state.time.M + ":" + this.state.time.S}</h3>
               <h3>Score: {this.state.score}</h3>
             </div>
-            <p>{this.state.errorMessage}</p>
+            {/* <p>{this.state.errorMessage}</p> */}
             {/* error message (TODO: roll this into mascot dialogue instead) */}
           </div>
           {/* <WordBox currentWord={this.state.word} /> */}
