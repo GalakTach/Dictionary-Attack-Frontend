@@ -344,8 +344,11 @@ class Game extends React.Component {
             dialogue={this.state.mascotDialogue}
             src={this.state.mascotSrc}
           />
-          <Options userNameIn={this.state.userNameInput} />
-          <button onClick={this.reset}>Reset Game</button>
+          <Options
+            userNameIn={this.state.userNameInput}
+            handleClick={this.reset}
+          />
+          {/* <button onClick={this.reset}>Reset Game</button> */}
         </div>
         <div className="CenterColumn">
           <div>
@@ -500,13 +503,14 @@ const UsernameForm = (props) => {
   );
 };
 
-const Options = () => {
+const Options = (props) => {
   return (
     <div id="Options" className="SidebarBox">
       <h2>Options</h2>
       <UsernameForm></UsernameForm>
       {/* only render if user has achieved a high score */}
       {/* <p>No options yet!</p> */}
+      <button onClick={() => props.handleClick()}>Reset Game</button>
     </div>
   );
 };
