@@ -255,7 +255,7 @@ class Game extends React.Component {
       const call = await axios.get(
         "http://localhost:5000/api/validateWord/" + inputedWord
       );
-      console.log(call);
+      // console.log(call);
       if (!call["data"]["error"]) {
         if (call["data"]["definitions"]) {
           this.setState({
@@ -312,7 +312,7 @@ class Game extends React.Component {
 
   countDown() {
     // function to count down the seconds and does some mascot animations based on time
-    console.log("state " + this.state.userNameInput);
+    // console.log("state " + this.state.userNameInput);
     let seconds = this.state.seconds - 1;
     this.setState({
       time: this.calcTime(seconds), //updates time display
