@@ -33,6 +33,7 @@ class Game extends React.Component {
       gameOver: false, // boolean for storing game finish state
       highScores: [], // array for holding high scores ()
       userNameInput: "", // string for holding the user's submitted username (send to backend for high scores)
+      totalTimePlayed: 0 //keep track of how long the user played
     };
 
     ///////////////////////
@@ -55,6 +56,7 @@ class Game extends React.Component {
     this.getRandomWord = this.getRandomWord.bind(this);
     this.getHighScores = this.getHighScores.bind(this);
     this.setName = this.setName.bind(this);
+    this.pushUserToDB = this.pushUserToDB.bind(this);
   }
 
   ////////////////
@@ -278,6 +280,31 @@ class Game extends React.Component {
     }
   }
 
+  //function to push user to database after end of game
+  async pushUserToDB(){
+    let seconds = "00";
+    let minutes = "00";
+    let finalTime;
+    
+    if(this.state.totalTimePlayed > 60){
+      minutes = Math.floor(this.state.totalTimePlayed / 60);
+      seconds = this.state.totalTimePlayed % 60;
+      if(seconds < 10){
+        seconds = "0" + seconds;
+      }
+      finalTime = minutes + ":" + seconds;
+    }
+    else {
+      finalTime = "00:" + this.state.totalTimePlayed;
+    }
+    const call = await axios.post('http://localhost:5000/api/postUser', {
+        username: this.state.userNameInput,
+        highscore: this.state.score,
+        time: finalTime
+    });
+    console.log(call);
+  }
+
   /////////////
   // SCORING //
   /////////////
@@ -289,7 +316,7 @@ class Game extends React.Component {
         Math.pow(bonusLetterMultiplier, word.length - minimumWordLength)
     );
   }
-
+  
   async getHighScores() {
     // function to retrieve high scores from the database
     var scores = await axios.get("http://localhost:5000/api/getAllUsers");
@@ -334,6 +361,8 @@ class Game extends React.Component {
     // function to count down the seconds and does some mascot animations based on time
     // console.log("state " + this.state.userNameInput);
     let seconds = this.state.seconds - 1;
+    this.state.totalTimePlayed++;
+    console.log( this.state.totalTimePlayed);
     this.setState({
       time: this.calcTime(seconds), //updates time display
       seconds: seconds,
@@ -341,6 +370,9 @@ class Game extends React.Component {
 
     if (seconds === 0) {
       // end game
+      if(this.state.userNameInput.length > 0){
+        this.pushUserToDB();
+      }
       clearInterval(this.timer); // stops timer
       this.timer = 0;
       if (this.state.score >= scoreTarget) {
