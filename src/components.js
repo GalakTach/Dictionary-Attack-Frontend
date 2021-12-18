@@ -11,28 +11,34 @@ const startingTileCount = 10;
 const startingRoundLength = 30;
 
 class Game extends React.Component {
+  // Game component holds all the state variables to keep them consistent between components
   constructor(props) {
     super(props);
     this.state = {
-      word: "",
-      wordList: "",
-      wordsPlayed: 0,
-      wordDisplay: [],
-      availableTiles: Array(startingTileCount).fill(1),
-      letterTray: [],
-      time: {}, //the timer
-      seconds: startingRoundLength, //number of seconds to be turned into minutes / seconds
-      score: 0,
-      wordSet: new Set(),
-      errorMessage: "",
-      mascotDialogue: "Welcome to Dictionary Attack!",
-      wordDefinition: "",
+      word: "", // string to track current word
+      wordList: "", // text of the "Recent Words" box
+      wordsPlayed: 0, // number of words played
+      wordDisplay: [], // array for displaying the current word's tiles
+      availableTiles: Array(startingTileCount).fill(1), // array of flags to track whether each tile has already been played
+      letterTray: [], // array for displaying the tray of letter tiles
+      time: {}, // object for tracking the game time
+      seconds: startingRoundLength, // number of seconds to be turned into minutes / seconds
+      score: 0, // number for tracking the player's score
+      wordSet: new Set(), // set for tracking unique words / preventing duplicates
+      errorMessage: "", // string for the error message display (TODO: roll this into the mascot dialogue instead)
+      mascotDialogue: "Welcome to Dictionary Attack!", // string for displaying the mascot's dialogue
+      wordDefinition: "", // string for displaying the word's definition (retrieved from backend)
       startingWord: "Lorem",
-      mascotSrc: "../mascot.png",
-      gameOver: false,
-      highScores: [],
-      userNameInput: "", //submitted username for highscore saving
+      mascotSrc: "../mascot.png", // file path for the mascot image
+      gameOver: false, // boolean for tracking
+      highScores: [], // array for holding high scores ()
+      userNameInput: "", // string for holding the user's submitted username (send to backend for high scores)
     };
+
+    ///////////////////////
+    // FUNCTION BINDINGS //
+    ///////////////////////
+
     this.addLetter = this.addLetter.bind(this);
     this.removeLetter = this.removeLetter.bind(this);
     // this.calculateWordScore = this.calculateWordScore(this);
@@ -51,7 +57,12 @@ class Game extends React.Component {
     this.setName = this.setName.bind(this);
   }
 
+  ///////////////
+  // FUNCTIONS //
+  ///////////////
+
   componentDidMount() {
+    // function that runs when the Game component is loaded
     this.setState({
       letterTray: this.generateLetterTray(),
     });
@@ -61,6 +72,7 @@ class Game extends React.Component {
   }
 
   getRandomWord() {
+    // function that retrieves a random word from startingWords.js
     let i = Math.floor(Math.random() * wordsArray.length);
     let randWord = wordsArray[i].toUpperCase();
     console.log(randWord);
@@ -68,6 +80,7 @@ class Game extends React.Component {
   }
 
   generateLetterTray() {
+    // function that generates letter tray from a starting word
     let tray = [];
     let randWord = this.getRandomWord();
 
@@ -78,13 +91,13 @@ class Game extends React.Component {
     let currentIndex = array.length,
       randomIndex;
 
-    // While there remain elements to shuffle...
+    // while there remain elements to shuffle...
     while (currentIndex !== 0) {
-      // Pick a remaining element...
+      // pick a remaining element...
       randomIndex = Math.floor(Math.random() * currentIndex);
       currentIndex--;
 
-      // And swap it with the current element.
+      // and swap it with the current element.
       [array[currentIndex], array[randomIndex]] = [
         array[randomIndex],
         array[currentIndex],
@@ -92,6 +105,7 @@ class Game extends React.Component {
     }
 
     for (let i = 0; i < array.length; i++) {
+      // iterate through the scrambled word and generate <Letter> elements from the characters
       tray[i] = (
         <Letter
           key={i}
@@ -108,6 +122,7 @@ class Game extends React.Component {
   }
 
   reset() {
+    // function to reinitialize all relevant variables
     this.setState({
       word: "",
       wordList: "",
@@ -121,14 +136,17 @@ class Game extends React.Component {
       mascotSrc: "../mascot.png",
     });
 
-    //reset the timer
+    // reset the timer
     this.resetTimer();
   }
+
   addLetter(letter, trayPosition, wordPosition) {
+    // function to add a letter to the word and display it on the UI
     if (!this.state.gameOver) {
       this.startTimer();
     }
     if (this.state.availableTiles[trayPosition] === 1) {
+      // the tile is available. add the letter to the word
       this.setState({
         word: this.state.word + letter,
         wordDisplay: this.state.wordDisplay.concat([
@@ -145,20 +163,22 @@ class Game extends React.Component {
         errorMessage: "",
       });
       this.setState((state) => {
-        // console.log(state.availableTiles.toString() + " ==>");
-        state.availableTiles[trayPosition] = 0;
-        // console.log(state.availableTiles.toString());
+        // console.log(state.availableTiles.toString() + " ==>"); // debug statement
+        state.availableTiles[trayPosition] = 0; // mark the tile as having been played
+        // console.log(state.availableTiles.toString()); // debug statement
         return state;
       });
     } else {
+      // the file is not available. return an error message letting the player know
       this.setState({ mascotDialogue: "Can't select the same letter twice!" });
     }
   }
 
   removeLetter(letter, trayPosition, wordPosition) {
+    // function to remove one or more letters from the word display
     this.setState((state) => {
-      // console.log("Tile clicked on: #" + wordPosition);
-      // console.log(state.availableTiles.toString() + " ==>");
+      // console.log("Tile clicked on: #" + wordPosition); // debug statement
+      // console.log(state.availableTiles.toString() + " ==>"); // debug statement
       for (let i = state.wordDisplay.length; i >= wordPosition + 1; i--) {
         // starting from the end of the word and working backward, remove and then free up each tile
         state.availableTiles[state.wordDisplay.pop().props.trayPosition] = 1;
@@ -172,6 +192,7 @@ class Game extends React.Component {
   }
 
   calculateWordScore(word) {
+    // function to calculate how many points a word is worth
     return Math.floor(
       baseWordScore *
         Math.pow(bonusLetterMultiplier, word.length - minimumWordLength)
@@ -179,6 +200,7 @@ class Game extends React.Component {
   }
 
   clearWord() {
+    // function to clear the current word
     this.setState({
       word: "",
       wordDisplay: [],
@@ -188,6 +210,7 @@ class Game extends React.Component {
   }
 
   goodEnding() {
+    // function to run when the player wins the game
     this.setState({
       score: this.state.score + baseWordScore * this.state.seconds,
       mascotDialogue: "You got the biggest word! Nice job!",
@@ -197,10 +220,12 @@ class Game extends React.Component {
   }
 
   badEnding() {
+    // function to run when the player loses the game
     this.setState({ mascotDialogue: "Nothing personnel kid.", gameOver: true });
   }
 
   submitWord() {
+    // function to handle submitting the current word
     if (!this.state.wordSet.has(this.state.word)) {
       // The word is not in the played words, add to word list and increment words played
       this.setState({
@@ -223,6 +248,7 @@ class Game extends React.Component {
   }
 
   async validateWord() {
+    // function to check the current word's validity
     if (!this.state.gameOver) {
       const inputedWord = this.state.word;
 
@@ -254,6 +280,7 @@ class Game extends React.Component {
   }
 
   async getHighScores() {
+    // function to retrieve high scores from the database
     var scores = await axios.get("http://localhost:5000/api/getAllUsers");
     var userScores = [];
     for (let i = 0; i < scores["data"].length; i++) {
@@ -344,11 +371,16 @@ class Game extends React.Component {
   }
 
   setName(Name) {
-    // function to recieve userNameIn from options user name form and allows userNameInput to be set to it
+    // function to receives userNameIn from options user name form below and set game state accordingly
     this.setState({ userNameInput: Name });
   }
 
+  ///////////////////
+  // RENDER METHOD //
+  ///////////////////
+
   render() {
+    // function to render the Game element
     return (
       <div className="RowTray" id="GameContainer">
         <div className="SideColumn">
@@ -374,6 +406,7 @@ class Game extends React.Component {
               <h3>Score: {this.state.score}</h3>
             </div>
             <p>{this.state.errorMessage}</p>
+            {/* error message (TODO: roll this into mascot dialogue instead) */}
           </div>
           {/* <WordBox currentWord={this.state.word} /> */}
           <WordLine letters={this.state.wordDisplay} />
@@ -392,7 +425,12 @@ class Game extends React.Component {
   }
 }
 
+////////////////
+// COMPONENTS //
+////////////////
+
 const WordLine = (props) => {
+  // component that displays the current word as a line of tiles
   return (
     <div>
       <h2>Current word:</h2>
@@ -402,6 +440,7 @@ const WordLine = (props) => {
 };
 
 const Letter = (props) => {
+  // component that displays each letter as a clickable tile
   return (
     <div
       className="Letter"
@@ -415,6 +454,7 @@ const Letter = (props) => {
 };
 
 const BigButton = (props) => {
+  // component to display a generic large button
   return (
     <div className="BigButtonContainer">
       <div className="BigButton" onClick={() => props.handleClick()}>
@@ -425,6 +465,7 @@ const BigButton = (props) => {
 };
 
 const WordList = (props) => {
+  // component to display recent words
   if (props.wordlist === "") {
     return (
       <div id="WordList" className="SidebarBox">
@@ -444,6 +485,7 @@ const WordList = (props) => {
 };
 
 const Mascot = (props) => {
+  // component to display mascot image and dialogue
   return (
     <div id="MascotBox" className="SidebarBox">
       <img
@@ -462,6 +504,7 @@ const Mascot = (props) => {
 };
 
 const HighScores = (props) => {
+  // component to display high scores
   return (
     <div id="HighScores" className="SidebarBox">
       <h2>High Scores</h2>
@@ -522,7 +565,7 @@ const UsernameForm = (props) => {
 };
 
 const Options = (props) => {
-  // component for options box that contains the user name form and reset game button
+  // component to display options menu
   return (
     <div id="Options" className="SidebarBox">
       <h2>Options</h2>
