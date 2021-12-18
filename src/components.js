@@ -8,7 +8,8 @@ const baseWordScore = 200;
 const bonusLetterMultiplier = 1.5;
 const minimumWordLength = 3;
 const startingTileCount = 10;
-const startingRoundLength = 30;
+const startingRoundLength = 45;
+const scoreTarget = 10000;
 
 class Game extends React.Component {
   // Game component holds all the state variables to keep them consistent between components
@@ -25,11 +26,10 @@ class Game extends React.Component {
       seconds: startingRoundLength, // number of seconds to be turned into minutes / seconds
       score: 0, // number for tracking the player's score
       wordSet: new Set(), // set for tracking unique words / preventing duplicates
-      errorMessage: "", // string for the error message display (TODO: roll this into the mascot dialogue instead)
       mascotDialogue: "Welcome to Dictionary Attack!", // string for displaying the mascot's dialogue
       wordDefinition: "", // string for displaying the word's definition (retrieved from backend)
       startingWord: "Lorem",
-      mascotImage: "../mascot.png", // file path for the mascot image
+      mascotImage: "../thesaurus rex neutral.png", // file path for the mascot image
       gameOver: false, // boolean for storing game finish state
       highScores: [], // array for holding high scores ()
       userNameInput: "", // string for holding the user's submitted username (send to backend for high scores)
@@ -133,7 +133,8 @@ class Game extends React.Component {
       availableTiles: Array(startingTileCount).fill(1),
       letterTray: this.generateLetterTray(),
       wordSet: new Set(),
-      mascotImage: "../mascot.png",
+      mascotImage: "../thesaurus rex neutral.png",
+      mascotDialogue: "Welcome to Dictionary Attack!",
     });
 
     // reset the timer
@@ -215,11 +216,24 @@ class Game extends React.Component {
         seconds: this.state.seconds + this.state.word.length * 2,
         mascotDialogue: wordMessage,
       });
-      // Run validation for if the played word is the longest possible word, if it is the game ends and next round starts
+      // Run validation for if the played word is the longest possible word, if it is the game ends, and next round starts
       if (this.state.word === this.state.startingWord) {
-        this.goodEnding();
+        // also give the player enough bonus points to meet the score target
+        this.setState((state) => {
+          state.score = state.score + scoreTarget;
+          return state;
+        });
+        this.winGame();
       }
       this.clearWord();
+      if (this.state.mascotImage === "../thesaurus rex annoyed.png") {
+        // clear the "annoyed" image off the mascot box because we've finally submitted a word
+        this.setState({
+          mascotImage: "../thesaurus rex happy.png",
+          mascotDialogue:
+            "Finally. I was starting to worry you'd never come up with a word.",
+        });
+      }
     } else {
       this.setState({
         mascotDialogue: "Uh oh! I think you've already played that one.",
@@ -326,28 +340,27 @@ class Game extends React.Component {
     });
 
     if (seconds === 0) {
-      // Shoot
-      this.setState({ mascotImage: "../thesaurusrex-2.png" });
+      // end game
       clearInterval(this.timer); // stops timer
       this.timer = 0;
-      this.badEnding();
-    } else if (seconds <= 10) {
+      if (this.state.score >= scoreTarget) {
+        // player has enough points to win!
+        this.winGame();
+      } else {
+        // player didn't make it :(
+        this.loseGame();
+      }
+    } else if (seconds <= 10 && this.state.wordsPlayed === 0) {
       // Look
       this.setState({
-        mascotImage: "../thesaurusrex-1.png",
-        mascotDialogue: "10 seconds left!",
+        mascotImage: "../thesaurus rex annoyed.png",
+        mascotDialogue: "...you're kinda slow, aren't you?",
       });
-    } else if (seconds <= 20 && seconds > 10) {
+    } else if (seconds <= 30 && this.state.wordsPlayed === 0) {
       // Gun
       this.setState({
-        mascotImage: "../thesaurusrex.png",
-        mascotDialogue: "20 seconds left!",
-      });
-    } else if (seconds > 20 && this.state.mascotImage !== "../mascot.png") {
-      // Put Gun Away
-      this.setState({
-        mascotImage: "../mascot.png",
-        mascotDialogue: "Safe....for now",
+        mascotImage: "../thesaurus rex annoyed.png",
+        mascotDialogue: "Uh... are you gonna put in a word?",
       });
     }
   }
@@ -375,19 +388,33 @@ class Game extends React.Component {
   // FINISH STATES //
   ///////////////////
 
-  goodEnding() {
+  winGame() {
     // function to run when the player wins the game
     this.setState({
       score: this.state.score + baseWordScore * this.state.seconds,
-      mascotDialogue: "You got the biggest word! Nice job!",
+      mascotImage: "../thesaurus rex happy.png",
+      mascotDialogue: "Nice job! I'm so proud of you!!",
       gameOver: true,
     });
     this.stopTimer();
   }
 
-  badEnding() {
+  loseGame() {
     // function to run when the player loses the game
-    this.setState({ mascotDialogue: "Nothing personnel kid.", gameOver: true });
+    if (this.state.wordsPlayed === 0) {
+      this.setState({
+        mascotImage: "../thesaurus rex annoyed.png",
+        mascotDialogue:
+          "You had all that time and you couldn't think of a single word? Wow.",
+        gameOver: true,
+      });
+    } else {
+      this.setState({
+        mascotImage: "../thesaurus rex sad.png",
+        mascotDialogue: "I-it's okay, you'll do better next time...!",
+        gameOver: true,
+      });
+    }
   }
 
   ///////////////////
@@ -418,10 +445,10 @@ class Game extends React.Component {
             <div className="RowTray">
               {/* displays minutes and seconds */}
               <h3>Time: {this.state.time.M + ":" + this.state.time.S}</h3>
-              <h3>Score: {this.state.score}</h3>
+              <h3>
+                Score: {this.state.score}/{scoreTarget}
+              </h3>
             </div>
-            {/* <p>{this.state.errorMessage}</p> */}
-            {/* error message (TODO: roll this into mascot dialogue instead) */}
           </div>
           {/* <WordBox currentWord={this.state.word} /> */}
           <WordLine letters={this.state.wordDisplay} />
