@@ -48,6 +48,7 @@ class Game extends React.Component {
     this.countDown = this.countDown.bind(this);
     this.getRandomWord = this.getRandomWord.bind(this);
     this.getHighScores = this.getHighScores.bind(this);
+    this.setName = this.setName.bind(this);
   }
 
   componentDidMount() {
@@ -337,6 +338,11 @@ class Game extends React.Component {
     this.timer = 0;
   }
 
+  setName(Name) {
+    //recieves userNameIn from options user name form below
+    this.setState({ userNameInput: Name });
+  }
+
   render() {
     return (
       <div className="RowTray" id="GameContainer">
@@ -347,6 +353,7 @@ class Game extends React.Component {
           />
           <Options
             userNameIn={this.state.userNameInput}
+            handleName={this.setName}
             handleClick={this.reset}
           />
           {/* <button onClick={this.reset}>Reset Game</button> */}
@@ -484,6 +491,7 @@ const UsernameForm = (props) => {
     if (userNameIn.length >= 3 && !clicked) {
       clicked = true;
       console.log("fart  " + userNameIn);
+      props.handleName(userNameIn);
     }
   };
 
@@ -508,7 +516,7 @@ const Options = (props) => {
   return (
     <div id="Options" className="SidebarBox">
       <h2>Options</h2>
-      <UsernameForm></UsernameForm>
+      <UsernameForm handleName={props.handleName}></UsernameForm>
       {/* only render if user has achieved a high score */}
       {/* <p>No options yet!</p> */}
       <button onClick={() => props.handleClick()}>Reset Game</button>
