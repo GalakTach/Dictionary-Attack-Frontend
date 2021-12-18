@@ -30,7 +30,7 @@ class Game extends React.Component {
       wordDefinition: "", // string for displaying the word's definition (retrieved from backend)
       startingWord: "Lorem",
       mascotSrc: "../mascot.png", // file path for the mascot image
-      gameOver: false, // boolean for tracking
+      gameOver: false, // boolean for storing game finish state
       highScores: [], // array for holding high scores ()
       userNameInput: "", // string for holding the user's submitted username (send to backend for high scores)
     };
@@ -57,9 +57,9 @@ class Game extends React.Component {
     this.setName = this.setName.bind(this);
   }
 
-  ///////////////
-  // FUNCTIONS //
-  ///////////////
+  ////////////////
+  // GAME SETUP //
+  ////////////////
 
   componentDidMount() {
     // function that runs when the Game component is loaded
@@ -140,6 +140,10 @@ class Game extends React.Component {
     this.resetTimer();
   }
 
+  ///////////////////////
+  // LETTERS AND WORDS //
+  ///////////////////////
+
   addLetter(letter, trayPosition, wordPosition) {
     // function to add a letter to the word and display it on the UI
     if (!this.state.gameOver) {
@@ -191,14 +195,6 @@ class Game extends React.Component {
     });
   }
 
-  calculateWordScore(word) {
-    // function to calculate how many points a word is worth
-    return Math.floor(
-      baseWordScore *
-        Math.pow(bonusLetterMultiplier, word.length - minimumWordLength)
-    );
-  }
-
   clearWord() {
     // function to clear the current word
     this.setState({
@@ -207,21 +203,6 @@ class Game extends React.Component {
       availableTiles: this.state.availableTiles.fill(1),
       errorMessage: "",
     });
-  }
-
-  goodEnding() {
-    // function to run when the player wins the game
-    this.setState({
-      score: this.state.score + baseWordScore * this.state.seconds,
-      mascotDialogue: "You got the biggest word! Nice job!",
-      gameOver: true,
-    });
-    this.stopTimer();
-  }
-
-  badEnding() {
-    // function to run when the player loses the game
-    this.setState({ mascotDialogue: "Nothing personnel kid.", gameOver: true });
   }
 
   submitWord() {
@@ -285,6 +266,18 @@ class Game extends React.Component {
     }
   }
 
+  /////////////
+  // SCORING //
+  /////////////
+
+  calculateWordScore(word) {
+    // function to calculate how many points a word is worth
+    return Math.floor(
+      baseWordScore *
+        Math.pow(bonusLetterMultiplier, word.length - minimumWordLength)
+    );
+  }
+
   async getHighScores() {
     // function to retrieve high scores from the database
     var scores = await axios.get("http://localhost:5000/api/getAllUsers");
@@ -294,6 +287,15 @@ class Game extends React.Component {
     }
     this.setState({ highScores: userScores });
   }
+
+  setName(Name) {
+    // function to receives userNameIn from options user name form below and set game state accordingly
+    this.setState({ userNameInput: Name });
+  }
+
+  ////////////
+  // TIMING //
+  ////////////
 
   calcTime(sec) {
     // function to convert seconds to minutes and seconds
@@ -371,9 +373,23 @@ class Game extends React.Component {
     this.timer = 0;
   }
 
-  setName(Name) {
-    // function to receives userNameIn from options user name form below and set game state accordingly
-    this.setState({ userNameInput: Name });
+  ///////////////////
+  // FINISH STATES //
+  ///////////////////
+
+  goodEnding() {
+    // function to run when the player wins the game
+    this.setState({
+      score: this.state.score + baseWordScore * this.state.seconds,
+      mascotDialogue: "You got the biggest word! Nice job!",
+      gameOver: true,
+    });
+    this.stopTimer();
+  }
+
+  badEnding() {
+    // function to run when the player loses the game
+    this.setState({ mascotDialogue: "Nothing personnel kid.", gameOver: true });
   }
 
   ///////////////////
