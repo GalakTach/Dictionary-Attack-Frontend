@@ -325,19 +325,13 @@ class Game extends React.Component {
       clearInterval(this.timer); // stops timer
       this.timer = 0;
       this.badEnding();
-    } else if (
-      seconds <= 10 &&
-      this.state.mascotSrc !== "../thesaurusrex-1.png"
-    ) {
+    } else if (seconds <= 10) {
       // Look
       this.setState({
         mascotSrc: "../thesaurusrex-1.png",
         mascotDialogue: "10 seconds left!",
       });
-    } else if (
-      seconds <= 20 &&
-      this.state.mascotSrc !== "../thesaurusrex.png"
-    ) {
+    } else if (seconds <= 20 && seconds > 10) {
       // Gun
       this.setState({
         mascotSrc: "../thesaurusrex.png",
