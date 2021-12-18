@@ -281,6 +281,7 @@ class Game extends React.Component {
   }
 
   countDown() {
+    console.log("state " + this.state.userNameInput);
     let seconds = this.state.seconds - 1;
     this.setState({
       time: this.calcTime(seconds), //updates time display
