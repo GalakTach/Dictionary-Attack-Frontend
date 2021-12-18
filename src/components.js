@@ -370,6 +370,10 @@ class Game extends React.Component {
     this.setState({ userNameInput: Name });
   }
 
+  ///////////////////
+  // RENDER METHOD //
+  ///////////////////
+
   render() {
     // function to render the Game element
     return (
@@ -413,6 +417,10 @@ class Game extends React.Component {
     );
   }
 }
+
+////////////////
+// COMPONENTS //
+////////////////
 
 const WordLine = (props) => {
   // component that displays the current word as a line of tiles
