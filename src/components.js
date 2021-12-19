@@ -249,7 +249,7 @@ class Game extends React.Component {
       const inputedWord = this.state.word;
 
       const call = await axios.get(
-        "http://localhost:5000/api/validateWord/" + inputedWord
+        "http://ec2-13-52-213-238.us-west-1.compute.amazonaws.com:5000/api/validateWord/" + inputedWord
       );
       // console.log(call);
       if (!call["data"]["error"]) {
@@ -302,7 +302,7 @@ class Game extends React.Component {
     } else {
       finalTime = "00:" + this.state.totalTimePlayed;
     }
-    const call = await axios.post("http://localhost:5000/api/postUser", {
+    const call = await axios.post("http://ec2-13-52-213-238.us-west-1.compute.amazonaws.com:5000/api/postUser", {
       username: this.state.userNameInput,
       highscore: this.state.score,
       time: finalTime,
@@ -324,7 +324,7 @@ class Game extends React.Component {
 
   async getHighScores() {
     // function to retrieve high scores from the database
-    var scores = await axios.get("http://localhost:5000/api/getAllUsers");
+    var scores = await axios.get("http://ec2-13-52-213-238.us-west-1.compute.amazonaws.com:5000/api/getAllUsers");
     var userScores = [];
     for (let i = 0; i < scores["data"].length; i++) {
       userScores.push(scores["data"][i]);
