@@ -44,10 +44,33 @@
 
   user-select: none;
 }
+pre {
+  font-family: "Roboto";
+}
 
 .WordBox {
   max-width: 400px;
   overflow-wrap: break-word;
+}
+
+.WordLine {
+  min-width: 400px;
+  height: 100px;
+
+  /* border properties */
+  border-width: 2px;
+  border-color: white;
+  border-style: dashed;
+
+  /* flex properties */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  align-content: center;
+  gap: 6px;
+
+  user-select: none;
 }
 
 .BigButton {
@@ -99,6 +122,7 @@
   flex-direction: column;
   justify-content: space-around;
   align-items: center;
+  flex-grow: 2;
 }
 
 .SideColumn {
@@ -135,4 +159,9 @@
 
 #WordList {
   min-height: 446px;
+}
+table, th, td {
+  border: 1px solid white;
+  text-align: center;
+  width: 100%;
 }
