@@ -9,7 +9,7 @@ const bonusLetterMultiplier = 1.5;
 const minimumWordLength = 3;
 const startingTileCount = 10;
 const startingRoundLength = 45;
-const scoreTarget = 10000;
+const scoreTarget = 5000;
 
 class Game extends React.Component {
   // Game component holds all the state variables to keep them consistent between components
@@ -33,7 +33,7 @@ class Game extends React.Component {
       gameOver: false, // boolean for storing game finish state
       highScores: [], // array for holding high scores ()
       userNameInput: "", // string for holding the user's submitted username (send to backend for high scores)
-      totalTimePlayed: 0 //keep track of how long the user played
+      totalTimePlayed: 0, //keep track of how long the user played
     };
 
     ///////////////////////
@@ -77,7 +77,7 @@ class Game extends React.Component {
     // function that retrieves a random word from startingWords.js
     let i = Math.floor(Math.random() * wordsArray.length);
     let randWord = wordsArray[i].toUpperCase();
-    console.log(randWord);
+    // console.log(randWord);
     return randWord;
   }
 
@@ -257,8 +257,14 @@ class Game extends React.Component {
           this.setState({
             wordDefinition: call["data"]["definitions"].definition,
           });
-          if (call["data"]["definitions"].definition === "{}") {
-            console.log("Oopsie Poopsie!");
+          if (
+            call["data"]["definitions"].definition === "{}" ||
+            call["data"]["definitions"].definition === undefined
+          ) {
+            this.setState({
+              mascotDialogue:
+                "Uh... I couldn't find a definition for that one.",
+            });
           } else {
             this.submitWord();
           }
@@ -281,26 +287,25 @@ class Game extends React.Component {
   }
 
   //function to push user to database after end of game
-  async pushUserToDB(){
+  async pushUserToDB() {
     let seconds = "00";
     let minutes = "00";
     let finalTime;
-    
-    if(this.state.totalTimePlayed > 60){
+
+    if (this.state.totalTimePlayed > 60) {
       minutes = Math.floor(this.state.totalTimePlayed / 60);
       seconds = this.state.totalTimePlayed % 60;
-      if(seconds < 10){
+      if (seconds < 10) {
         seconds = "0" + seconds;
       }
       finalTime = minutes + ":" + seconds;
-    }
-    else {
+    } else {
       finalTime = "00:" + this.state.totalTimePlayed;
     }
-    const call = await axios.post('http://localhost:5000/api/postUser', {
-        username: this.state.userNameInput,
-        highscore: this.state.score,
-        time: finalTime
+    const call = await axios.post("http://localhost:5000/api/postUser", {
+      username: this.state.userNameInput,
+      highscore: this.state.score,
+      time: finalTime,
     });
     console.log(call);
   }
@@ -316,7 +321,7 @@ class Game extends React.Component {
         Math.pow(bonusLetterMultiplier, word.length - minimumWordLength)
     );
   }
-  
+
   async getHighScores() {
     // function to retrieve high scores from the database
     var scores = await axios.get("http://localhost:5000/api/getAllUsers");
@@ -362,7 +367,7 @@ class Game extends React.Component {
     // console.log("state " + this.state.userNameInput);
     let seconds = this.state.seconds - 1;
     this.state.totalTimePlayed++;
-    console.log( this.state.totalTimePlayed);
+    //console.log(this.state.totalTimePlayed);
     this.setState({
       time: this.calcTime(seconds), //updates time display
       seconds: seconds,
@@ -370,7 +375,7 @@ class Game extends React.Component {
 
     if (seconds === 0) {
       // end game
-      if(this.state.userNameInput.length > 0){
+      if (this.state.userNameInput.length > 0) {
         this.pushUserToDB();
       }
       clearInterval(this.timer); // stops timer
