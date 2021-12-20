@@ -57,6 +57,7 @@ class Game extends React.Component {
     this.getHighScores = this.getHighScores.bind(this);
     this.setName = this.setName.bind(this);
     this.pushUserToDB = this.pushUserToDB.bind(this);
+    this.helloWorld = this.helloWorld.bind(this);
   }
 
   ////////////////
@@ -247,7 +248,6 @@ class Game extends React.Component {
     // function to check the current word's validity
     if (!this.state.gameOver) {
       const inputedWord = this.state.word;
-
       const call = await axios.get(
         "https://dictionary-attack-backend.herokuapp.com/api/validateWord/" + inputedWord
       );
@@ -284,6 +284,15 @@ class Game extends React.Component {
           "The game is already over! Click Reset to start a new game!",
       });
     }
+  }
+
+  //This function returns a Hello World from the backend.
+  async helloWorld(){
+    console.log("hit")
+    const call = await axios.get('https://dictionary-attack-backend.herokuapp.com/');
+    console.log(call);
+    this.setState({mascotDialogue : call['data']['message']});
+    console.log("hit");
   }
 
   //function to push user to database after end of game
@@ -434,6 +443,7 @@ class Game extends React.Component {
       gameOver: true,
     });
     this.stopTimer();
+    this.pushUserToDB();
   }
 
   loseGame() {
@@ -473,6 +483,7 @@ class Game extends React.Component {
             handleName={this.setName}
             // sends handleClick the reset function so the user can reset the game
             handleClick={this.reset}
+            handleHelloWorld={this.helloWorld}
           />
           {/* <button onClick={this.reset}>Reset Game</button> */}
         </div>
@@ -653,6 +664,7 @@ const Options = (props) => {
       {/* <p>No options yet!</p> */}
       {/* handleClick function passed through props to allow user to reset the game with reset function */}
       <button onClick={() => props.handleClick()}>Reset Game</button>
+      <button onClick={() => props.handleHelloWorld()}>Hello World</button>
     </div>
   );
 };
