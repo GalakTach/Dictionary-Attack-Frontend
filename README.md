@@ -34,5 +34,7 @@ https://dictionary-attack.netlify.app/
 - Angelo Leonardi
 - Anthony Omens
 
+# Screenshots
 
+![dictionary_attack](https://user-images.githubusercontent.com/80669600/169416608-fe9d880b-dc7f-40c7-97ec-5e34b64c97ea.JPG)
 
