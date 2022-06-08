@@ -18,6 +18,7 @@ https://github.com/arthursulian/Dictionary-Attack-Backend
 - Past-tense versions of the word are not allowed
 
 # Play Now
+- Backend currently down
 https://dictionary-attack.netlify.app/
 
 ### Stack
